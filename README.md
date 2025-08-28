@@ -18,7 +18,7 @@
 1. **prompt_variables.yaml** (옵션)
     - 프롬프트에 변수가 포함된 경우 이 파일에 값을 입력합니다.
     - **(주의) 민감한 정보가 포함된 경우 절대 레포지토리를 공개하지 마세요**
-1. **prompt_tools.py**
+1. **prompt_tools.py** (선택)
     - 이곳에 정의된 `tools=[...]`를 프롬프트에 정의된 툴에 덮어씁니다.
     - **(주의) mcp와 같이 Access Token 및 API KEY와 같은 민감한 값이 포함된 경우 절대 레포지토리를 공개하거나 prompt_tools.py를 푸시하면 안됩니다**
 
