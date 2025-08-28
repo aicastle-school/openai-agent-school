@@ -18,7 +18,7 @@ if os.environ["PROMPT_ID"]:
         "variables": yaml.safe_load(open("prompt_variables.yaml"))
     }
 try:
-    from tools import tools
+    from prompt_tools import tools
     if tools:
         config["tools"] = tools
 except:
