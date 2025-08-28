@@ -1,6 +1,7 @@
 # OpenAI API Agent Project
 
-본 자료는 [**OpenAI API로 배우는 Agent 개발 첫걸음**](https://openai-api-agent.aicastle.school/) 프로젝트 자료입니다.
+본 자료는 [(주)에이아이캐슬](https://aicastle.com)에서 만든 [**OpenAI API로 배우는 Agent 개발 첫걸음** ](https://openai-api-agent.aicastle.school/)(OpenAI API Agent School) 강의 프로젝트 자료입니다.
+
 
 ## Agent 멀티모달 웹앱
 
