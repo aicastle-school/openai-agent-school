@@ -1,0 +1,31 @@
+messages:
+  - role: user
+    content: 런던의 현재 기온을 화씨로 알려주세요.
+
+  - role: assistant
+    tool_calls:
+      - id: call_id
+        type: function
+        function:
+          name: get_current_weather
+          arguments: '{"location": "London, UK", "format": "fahrenheit"}'
+
+tools:
+  - type: function
+    function:
+      name: get_current_weather
+      description: Get the current weather
+      parameters:
+        type: object
+        properties:
+          location:
+            type: string
+            description: The city and country, eg. London, UK
+          format:
+            type: string
+            enum:
+              - celsius
+              - fahrenheit
+        required:
+          - location
+          - format

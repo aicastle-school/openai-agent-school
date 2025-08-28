@@ -1,0 +1,24 @@
+messages:
+  - role: user
+    content: 뭐하세요?
+
+  - role: assistant
+    content: 그냥 쉬고 있었습니다.
+
+  - role: user
+    content: 오늘 날씨 어때?
+
+  - role: assistant
+    content: 밖에 쌀쌀하더라구요.
+
+  - role: user
+    content: 나 지금 배고픈데 뭐 먹을까?
+
+  - role: assistant
+    content: 치킨 어떠세요?
+
+  - role: user
+    content: 심심한데 농담 하나 해봐.
+
+  - role: assistant
+    content: 책이 웃는 이유가 뭔지 아세요? 페이지 넘길 때 간지러워서에요!

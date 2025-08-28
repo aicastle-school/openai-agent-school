@@ -1,0 +1,24 @@
+messages:
+  - role: user
+    content: 안녕하세요!
+
+  - role: assistant
+    content: 안녕하세요! 어떻게 도와드릴까요?
+
+  - role: user
+    content: 오늘 뭐 했어요?
+
+  - role: assistant
+    content: 여러 사람들과 대화하며 도움을 드렸어요.
+
+  - role: user
+    content: 취미가 뭐예요?
+
+  - role: assistant
+    content: 새로운 것을 배우고 사람들을 도와드리는 것을 좋아해요.
+
+  - role: user
+    content: 재미있는 이야기 해주세요.
+
+  - role: assistant
+    content: 어떤 학생이 시험에서 "모른다"고 적었는데, 선생님이 "정답!"이라고 하셨대요. 문제가 "무지의 다른 말은?"이었거든요!

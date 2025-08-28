@@ -1,0 +1,19 @@
+{
+    "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
+    "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "GitHub.copilot",
+                "ms-python.python"
+            ]
+        },
+        "settings": {
+            "markdown.preview.doubleClickToSwitchToEditor": false,
+            "workbench.editorAssociations": {
+                "*.md": "vscode.markdown.preview.editor"
+            },
+            "explorer.compactFolders": false
+        }
+    }
+}
