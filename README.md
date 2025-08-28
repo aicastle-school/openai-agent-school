@@ -29,7 +29,7 @@ uv sync --frozen && uv cache prune --ci
 
 ### Start Command
 ```sh
-uv run gunicorn app:app --timeout 0
+uv run gunicorn --timeout 0 app:app 
 ```
 
 ## [2] 파인 튜닝
