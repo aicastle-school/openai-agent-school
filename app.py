@@ -36,7 +36,7 @@ def index():
     app_title = os.environ.get("APP_TITLE")
     if not app_title:
         app_title = "OpenAI API Agent School"
-    return render_template('index.html', title=app_title)
+    return render_template('index.html', app_title=app_title)
 
 @app.route("/api/chat", methods=["POST"])
 def chat_api():    
