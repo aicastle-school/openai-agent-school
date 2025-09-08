@@ -15,7 +15,7 @@
 OPENAI_API_KEY="sk-proj-........"
 PROMPT_ID="pmpt_........"
 TITLE="🤖 OpenAI API Agent School"
-PASSWORD=""  # Optional
+PASSWORD=""
 ```
 - `OPENAI_API_KEY`: OpenAI API키를 설정
 - `PROMPT_ID` (옵션): OpenAI 대시보드에서 프롬프트 ID 입력
