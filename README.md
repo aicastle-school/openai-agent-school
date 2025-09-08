@@ -11,9 +11,9 @@
     ```
     OPENAI_API_KEY=sk-proj-....
     PROMPT_ID=pmpt_....
-    APP_TITLE="OpneAI API Agent School"
+    TITLE="OpneAI API Agent School"
     ```
-    - .env 파일을 생성하고 위와 같이 `OPENAI_API_KEY`, `PROMPT_ID`, `APP_TITLE`를 입력합니다.
+    - .env 파일을 생성하고 위와 같이 `OPENAI_API_KEY`, `PROMPT_ID`, `TITLE`를 입력합니다.
     - **(주의) .gitignore에서 .env를 반드시 포함시켜 레포지토리에 푸시되지 않게 해야 합니다.**
 1. **prompt_variables.yaml** (옵션)
     - 프롬프트에 변수가 포함된 경우 이 파일에 값을 입력합니다.
@@ -29,7 +29,7 @@ uv sync --frozen && uv cache prune --ci
 
 ### Start Command
 ```sh
-uv run gunicorn --timeout 0 app:app 
+uv run gunicorn --timeout 0 --reload app:app
 ```
 
 ## [2] 파인 튜닝

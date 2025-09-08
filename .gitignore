@@ -1,5 +1,7 @@
 .venv/
 .env
+config.overrides.jsonc
+config.overrides.json
 test*
 data.jsonl
 __pycache__/

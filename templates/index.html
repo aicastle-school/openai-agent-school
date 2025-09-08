@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ app_title }}</title>
+    <title>{{ title }}</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
@@ -40,6 +40,31 @@
             border-bottom: 1px solid #ddd;
             background-color: #f8f9fa;
             text-align: center;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 2px 6px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #c82333;
+            box-shadow: 0 3px 8px rgba(220, 53, 69, 0.4);
+            transform: translateY(-50%) translateY(-1px);
         }
 
         .messages {
@@ -53,18 +78,26 @@
             margin-bottom: 15px;
             padding: 10px;
             border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .message:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .user-message {
             background-color: #8a2be2;
             color: white;
             margin-left: 20%;
+            box-shadow: 0 3px 10px rgba(138, 43, 226, 0.3);
         }
 
         .assistant-message {
             background-color: #e9ecef;
             color: #333;
             margin-right: 20%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
 
         .reasoning {
@@ -201,10 +234,14 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 0;
+            box-shadow: 0 2px 6px rgba(108, 117, 125, 0.3);
+            transition: all 0.3s ease;
         }
 
         .attach-button:hover {
             background-color: #5a6268;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+            transform: translateY(-1px);
         }
 
         .attach-button:disabled {
@@ -225,7 +262,7 @@
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             min-width: 120px;
         }
@@ -254,6 +291,7 @@
 
         .file-menu button:hover {
             background-color: #f8f9fa;
+            box-shadow: inset 0 0 0 1px rgba(138, 43, 226, 0.1);
         }
 
         .file-inputs {
@@ -278,6 +316,14 @@
             max-height: 150px;
             overflow-y: auto;
             line-height: 1.4;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        #messageInput:focus {
+            outline: none;
+            border-color: #8a2be2;
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.1), 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         label {
@@ -299,10 +345,19 @@
             font-size: 16px;
             height: fit-content;
             margin-bottom: 0;
+            box-shadow: 0 3px 8px rgba(138, 43, 226, 0.3);
+            transition: all 0.3s ease;
         }
 
         #sendButton:hover {
             background-color: #6a1cb2;
+            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.4);
+            transform: translateY(-1px);
+        }
+
+        #sendButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(138, 43, 226, 0.3);
         }
 
         #sendButton:disabled {
@@ -428,7 +483,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
+            border-top: 3px solid #8a2be2;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 10px;
@@ -449,7 +504,7 @@
         /* 저작권 정보 스타일 */
         .copyright {
             text-align: center;
-            padding: 10px;
+            padding: 5px;
             background-color: #f8f9fa;
             border-top: 1px solid #ddd;
             font-size: 14px;
@@ -458,7 +513,7 @@
         }
 
         .copyright a {
-            color: #007bff;
+            color: #8a2be2;
             text-decoration: none;
         }
 
@@ -470,7 +525,12 @@
 </head>
 <body>
     <div class="chat-container">
-        <h1>{{ app_title }}</h1>
+        <h1>
+            {{ title }}
+            {% if config.get('PASSWORD') %}
+            <a href="/logout" class="logout-btn">Logout</a>
+            {% endif %}
+        </h1>
 
         <div class="messages" id="messages"></div>
 
@@ -485,7 +545,7 @@
 
                 <!-- 파일 업로드 메뉴 (숨김) -->
                 <div id="fileMenu" class="file-menu" style="display: none;">
-                    <button onclick="triggerImageUpload()">📷 이미지</button>
+                    <button onclick="triggerImageUpload()">📷 Image</button>
                     <button onclick="triggerPdfUpload()">📄 PDF</button>
                 </div>
 
@@ -493,8 +553,8 @@
                 <input type="file" id="imageInput" accept=".jfif,.pjp,.jpg,.pjpeg,.jpeg,.gif,.png" multiple style="display: none;" onchange="handleFileUpload(this, 'image')">
                 <input type="file" id="pdfInput" accept=".pdf" multiple style="display: none;" onchange="handleFileUpload(this, 'pdf')">
 
-                <textarea id="messageInput" placeholder="메시지를 입력하세요... (Shift+Enter로 줄바꿈, Ctrl+V로 이미지 붙여넣기)" onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)" onpaste="handlePaste(event)" rows="1"></textarea>
-                <button id="sendButton" onclick="sendMessage()">전송</button>
+                <textarea id="messageInput" placeholder="Enter your message" onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)" onpaste="handlePaste(event)" rows="1"></textarea>
+                <button id="sendButton" onclick="sendMessage()">Send</button>
             </div>
         </div>
 
@@ -509,6 +569,11 @@
         let previousResponseId = null;
         let isProcessing = false;
         let uploadedFiles = []; // 업로드된 파일들을 저장하는 배열
+
+        // 상태 메시지 변환 함수
+        function getStatusMessage(status) {
+            return status;
+        }
 
         function addMessage(content, isUser = false, files = []) {
             const messagesDiv = document.getElementById('messages');
@@ -572,12 +637,12 @@
             attachButton.disabled = processing;
 
             if (processing) {
-                // 어시스턴트 메시지 박스를 먼저 생성하고 그 안에 스피너 표시
+                // 어시스턴트 메시지 박스를 먼저 생성하고 그 안에 스피너와 상태 메시지 표시
                 const messagesDiv = document.getElementById('messages');
                 const assistantDiv = document.createElement('div');
                 assistantDiv.className = 'message assistant-message';
                 assistantDiv.id = 'current-assistant-message';
-                assistantDiv.innerHTML = '<div class="spinner"></div>';
+                assistantDiv.innerHTML = '<div class="thinking-message"><div class="spinner"></div><span id="current-status">Processing request...</span></div>';
                 messagesDiv.appendChild(assistantDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
@@ -625,12 +690,12 @@
                 // 파일 포맷 검증
                 if (type === 'image') {
                     if (!supportedImageFormats.includes(fileExtension)) {
-                        alert(`지원되지 않는 이미지 포맷입니다: ${file.name}\n지원되는 포맷: ${supportedImageFormats.join(', ')}`);
+                        alert(`Unsupported image format: ${file.name}\nSupported formats: ${supportedImageFormats.join(', ')}`);
                         return;
                     }
                 } else if (type === 'pdf') {
                     if (!supportedPdfFormats.includes(fileExtension)) {
-                        alert(`지원되지 않는 파일 포맷입니다: ${file.name}\n지원되는 포맷: ${supportedPdfFormats.join(', ')}`);
+                        alert(`Unsupported file format: ${file.name}\nSupported formats: ${supportedPdfFormats.join(', ')}`);
                         return;
                     }
                 }
@@ -668,7 +733,7 @@
                             id: Date.now() + Math.random(),
                             file: file,
                             type: 'image',
-                            name: `클립보드_이미지_${new Date().getTime()}.png`,
+                            name: `Clipboard_Image_${new Date().getTime()}.png`,
                             size: formatFileSize(file.size)
                         };
 
@@ -771,11 +836,11 @@
         function handleKeyDown(event) {
             if (event.key === 'Enter') {
                 if (event.shiftKey) {
-                    // Shift+Enter: 줄바꿈 허용 (기본 동작)
+                    // Shift+Enter: allow line break (default behavior)
                     autoResizeTextarea(event.target);
                     return true;
                 } else {
-                    // Enter만: 메시지 전송
+                    // Enter only: send message
                     event.preventDefault();
                     if (!isProcessing) {
                         sendMessage();
@@ -786,7 +851,7 @@
         }
 
         function autoResizeTextarea(textarea) {
-            // textarea 높이 자동 조절
+            // Automatically adjust textarea height
             textarea.style.height = 'auto';
             textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
         }
@@ -802,7 +867,7 @@
             const messageText = messageInput.value.trim();
 
             if (!messageText && uploadedFiles.length === 0) {
-                alert('메시지를 입력하거나 파일을 선택해주세요.');
+                alert('Please enter a message or select a file.');
                 return;
             }
 
@@ -877,22 +942,32 @@
                 const decoder = new TextDecoder();
                 let assistantMessageDiv = null;
                 let accumulatedText = '';
+                let buffer = '';
 
                 while (true) {
                         const { done, value } = await reader.read();
                         if (done) break;
 
-                        const chunk = decoder.decode(value);
-                        const lines = chunk.split('\n');
+                        const chunk = decoder.decode(value, { stream: true });
+                        buffer += chunk;
+                        
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop(); // 마지막 불완전한 라인은 버퍼에 보관
 
                         for (const line of lines) {
                             if (line.startsWith('data: ') && line.trim() !== 'data: ') {
                                 try {
                                     const jsonStr = line.slice(6).trim();
-                                    if (jsonStr) {
+                                    if (jsonStr && jsonStr !== '') {
                                         const data = JSON.parse(jsonStr);
 
-                                        if (data.type === 'text_delta') {
+                                        if (data.type === 'status') {
+                                            // 상태 메시지 업데이트
+                                            const statusElement = document.getElementById('current-status');
+                                            if (statusElement) {
+                                                statusElement.textContent = getStatusMessage(data.status);
+                                            }
+                                        } else if (data.type === 'text_delta') {
                                             if (!assistantMessageDiv) {
                                                 // 기존 어시스턴트 메시지 박스 찾기 (스피너가 있는)
                                                 assistantMessageDiv = document.getElementById('current-assistant-message');
@@ -906,15 +981,30 @@
                                             }
 
                                             accumulatedText += data.delta;
-
-                                            // 스피너와 텍스트를 함께 표시
-                                            let content = '<div class="spinner"></div>';
-                                            if (typeof marked !== 'undefined') {
-                                                content += marked.parse(accumulatedText);
-                                            } else {
-                                                content += accumulatedText.replace(/\n/g, '<br>');
+                                            
+                                            // 기존 스피너 영역 찾기 또는 생성
+                                            let thinkingElement = assistantMessageDiv.querySelector('.thinking-message');
+                                            if (!thinkingElement) {
+                                                thinkingElement = document.createElement('div');
+                                                thinkingElement.className = 'thinking-message';
+                                                thinkingElement.innerHTML = '<div class="spinner"></div><span id="current-status">Processing...</span>';
+                                                assistantMessageDiv.appendChild(thinkingElement);
                                             }
-                                            assistantMessageDiv.innerHTML = content;
+                                            
+                                            // 텍스트 내용 영역 찾기 또는 생성
+                                            let contentElement = assistantMessageDiv.querySelector('.message-content');
+                                            if (!contentElement) {
+                                                contentElement = document.createElement('div');
+                                                contentElement.className = 'message-content';
+                                                assistantMessageDiv.appendChild(contentElement);
+                                            }
+                                            
+                                            // 텍스트 내용만 업데이트 (스피너는 그대로 유지)
+                                            if (typeof marked !== 'undefined') {
+                                                contentElement.innerHTML = marked.parse(accumulatedText);
+                                            } else {
+                                                contentElement.innerHTML = accumulatedText.replace(/\n/g, '<br>');
+                                            }
 
                                             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
 
@@ -931,24 +1021,40 @@
                                 }
                             }
 
-                            // 기존 어시스턴트 메시지 박스에 이미지 추가
-                            let content = '<div class="spinner"></div>';
+                            // 기존 스피너 영역 찾기 또는 생성
+                            let thinkingElement = assistantMessageDiv.querySelector('.thinking-message');
+                            if (!thinkingElement) {
+                                thinkingElement = document.createElement('div');
+                                thinkingElement.className = 'thinking-message';
+                                                                            thinkingElement.innerHTML = '<div class="spinner"></div><span id="current-status">Processing...</span>';
+                                assistantMessageDiv.appendChild(thinkingElement);
+                            }
+                            
+                            // 텍스트 내용 영역 찾기 또는 생성
+                            let contentElement = assistantMessageDiv.querySelector('.message-content');
+                            if (!contentElement) {
+                                contentElement = document.createElement('div');
+                                contentElement.className = 'message-content';
+                                assistantMessageDiv.appendChild(contentElement);
+                            }
+                            
+                            // 기존 텍스트 내용 유지하고 이미지 추가
+                            let textContent = '';
                             if (accumulatedText) {
                                 if (typeof marked !== 'undefined') {
-                                    content += marked.parse(accumulatedText);
+                                    textContent = marked.parse(accumulatedText);
                                 } else {
-                                    content += accumulatedText.replace(/\n/g, '<br>');
+                                    textContent = accumulatedText.replace(/\n/g, '<br>');
                                 }
                             }
-                            content += `<img src="${data.image_url}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px;">`;
-                            assistantMessageDiv.innerHTML = content;
-
+                            
+                            contentElement.innerHTML = textContent + `<img src="${data.image_data}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px;">`;
                             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;                                        } else if (data.type === 'done') {
-                                            // 응답 완료 시 스피너 제거
+                                            // 응답 완료 시 스피너와 상태 메시지 제거
                                             if (assistantMessageDiv) {
-                                                const spinnerElement = assistantMessageDiv.querySelector('.spinner');
-                                                if (spinnerElement) {
-                                                    spinnerElement.remove();
+                                                const thinkingElement = assistantMessageDiv.querySelector('.thinking-message');
+                                                if (thinkingElement) {
+                                                    thinkingElement.remove();
                                                 }
                                                 assistantMessageDiv.id = ''; // ID 제거
                                             }
@@ -960,20 +1066,9 @@
                                         }
                                     }
                                 } catch (e) {
-                                    console.error('JSON parsing error:', e);
-                                    // JSON 파싱 에러 시에도 스피너 제거하고 오류 표시
-                                    const currentAssistantMessage = document.getElementById('current-assistant-message');
-                                    if (currentAssistantMessage) {
-                                        currentAssistantMessage.remove();
-                                    }
-
-                                    const messagesDiv = document.getElementById('messages');
-                                    const errorDiv = document.createElement('div');
-                                    errorDiv.className = 'error-message';
-                                    errorDiv.textContent = '응답 처리 중 오류가 발생했습니다.';
-                                    messagesDiv.appendChild(errorDiv);
-                                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                                    break; // 스트리밍 루프 종료
+                                    console.error('JSON parsing error for line:', line);
+                                    console.error('Error details:', e);
+                                    // JSON 파싱 에러는 무시하고 계속 진행
                                 }
                             }
                         }
@@ -992,7 +1087,7 @@
                 const messagesDiv = document.getElementById('messages');
                 const errorDiv = document.createElement('div');
                 errorDiv.className = 'error-message';
-                errorDiv.textContent = `오류가 발생했습니다: ${error.message}`;
+                errorDiv.textContent = `An error occurred: ${error.message}`;
                 messagesDiv.appendChild(errorDiv);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             } finally {
