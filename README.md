@@ -3,38 +3,45 @@
 본 자료는 [(주)에이아이캐슬](https://aicastle.com)에서 만든 [**OpenAI API로 배우는 Agent 개발 첫걸음** ](https://openai-api-agent.aicastle.school/)(OpenAI API Agent School) 강의 프로젝트 자료입니다.
 
 
-## [1] Agent 앱 실행하기
+## [1] Agent 앱
 
-### 환경 설정
+### 1.1. 환경 설정
 
-1. **.env** (필수)
-    ```
-    OPENAI_API_KEY=sk-proj-....
-    PROMPT_ID=pmpt_....
-    TITLE="OpneAI API Agent School"
-    ```
-    - .env 파일을 생성하고 위와 같이 `OPENAI_API_KEY`, `PROMPT_ID`, `TITLE`를 입력합니다.
-    - **(주의) .gitignore에서 .env를 반드시 포함시켜 레포지토리에 푸시되지 않게 해야 합니다.**
-1. **prompt_variables.yaml** (옵션)
-    - 프롬프트에 변수가 포함된 경우 이 파일에 값을 입력합니다.
-    - **(주의) 민감한 정보가 포함된 경우 절대 레포지토리를 공개하지 마세요**
-1. **prompt_tools.py** (선택)
-    - 이곳에 정의된 `tools=[...]`를 프롬프트에 정의된 툴에 덮어씁니다.
-    - **(주의) mcp와 같이 Access Token 및 API KEY와 같은 민감한 값이 포함된 경우 절대 레포지토리를 공개하거나 prompt_tools.py를 푸시하면 안됩니다**
+#### 환경 변수 (필수)
 
-### Build Command
+아래와 같은 환경변수를 .env 파일에 설정 또는 배포 환경에서 등록
+
+```
+OPENAI_API_KEY="sk-proj-........"
+PROMPT_ID="pmpt_........"
+TITLE="🤖 OpenAI API Agent School"
+PASSWORD=""  # Optional
+```
+- `OPENAI_API_KEY`: OpenAI API키를 설정
+- `PROMPT_ID` (옵션): OpenAI 대시보드에서 프롬프트 ID 입력
+- `TITLE` (옵션): 실행 될 앱의 상단 제목
+- `PASSWORD` (옵션): 비밀번호가 설정된 앱을 원할경우 입력
+
+#### config.overrides.jsonc (선택)
+
+- openai responses api 요청시 덮어쓸 파라미터가 있다면 config.overrides.jsonc에 정의
+- 파일 위치: /etc/secrets/ (우선) 또는 프로젝트 폴더 
+
+### 1.2. 앱 실행
+
+#### Build Command
 ```sh
 uv sync --frozen && uv cache prune --ci
 ```
 
-### Start Command
+#### Start Command
 ```sh
 uv run gunicorn --timeout 0 --reload app:app
 ```
 
 ## [2] 파인 튜닝
 
-### supervised
+### 2.1. supervised
 ```sh
 uv run fine_tuning/supervised/data_gen.py
 ```
