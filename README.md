@@ -10,6 +10,7 @@
 #### 환경 변수 (필수)
 
 - 아래와 같은 환경변수를 .env 파일에 설정 또는 배포 환경에서 등록
+- 셈플: [.env.example](.env.example)
 
 ```
 OPENAI_API_KEY="sk-proj-........"
@@ -25,11 +26,12 @@ PASSWORD=""
 #### config.overrides.jsonc (선택)
 
 - openai responses api 요청시 덮어쓸 파라미터가 있다면 config.overrides.jsonc에 정의.
-- 파일 위치: /etc/secrets/ (우선) 또는 프로젝트 폴더 
+- 파일 위치: /etc/secrets/ (우선) 또는 프로젝트 폴더
+- 셈플: [config.overrides.jsonc.example](config.overrides.jsonc.example)
 
 #### function_call.py (선택)
 
-- function_call에서 사용할 함수를 function_call.py에 작성.
+- function_call에서 사용할 함수를 [function_call.py](function_call.py)에 작성.
 
 ### 1.2. 앱 실행
 
