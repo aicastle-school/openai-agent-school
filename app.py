@@ -1,9 +1,12 @@
 from flask import Flask, request, Response, render_template, redirect, url_for, make_response
 from flask_cors import CORS
-import os, yaml, json, hashlib, re
-from dotenv import load_dotenv
+import os, json, hashlib
 from openai import OpenAI
 import json5
+
+# environment variables
+from dotenv import load_dotenv
+load_dotenv()
 
 def deep_merge(base_dict, override_dict):
     if not isinstance(override_dict, dict):
@@ -21,10 +24,10 @@ def deep_merge(base_dict, override_dict):
 
 def load_config_overrides():
     override_paths = [
-        '/etc/secrets/config.overrides.jsonc',
-        '/etc/secrets/config.overrides.json',
         './config.overrides.jsonc',
         './config.overrides.json',
+        '/etc/secrets/config.overrides.jsonc',
+        '/etc/secrets/config.overrides.json',
     ]
     
     for path in override_paths:
@@ -43,7 +46,6 @@ def load_config_overrides():
     return {}
 
 # OpenAI 클라이언트
-load_dotenv()
 client = OpenAI()
 
 # config
