@@ -8,6 +8,8 @@ load_dotenv()
 
 mcp = FastMCP("My MCP Server")
 
+######################## tools #############################
+
 @mcp.tool
 def get_stock_price(symbol: str) -> Dict[str, Any]:
     """
@@ -41,19 +43,22 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     except Exception as e:
         return {"ok": False, "symbol": symbol, "error": str(e)}
 
-## health check
+##########################################################
+# health check
 @mcp.custom_route("/", methods=["GET"])
 async def root(_req):
-    return {"status": "ok"}
+    return JSONResponse({"status": "ok"})
 
-## app path
-app = mcp.http_app(path="/mcp")
+# FastMCP의 HTTP 앱 가져오기
+app = mcp.http_app(path="/")
 
-## PASSWORD
+# 비밀번호 환경 변수
 PASSWORD = os.getenv("PASSWORD", "")
 
 @app.middleware("http")
 async def gate(req, call_next):
+    if req.method == "GET" and req.url.path == "/":
+        return await call_next(req)  # health 허용
     if PASSWORD and req.query_params.get("password") != PASSWORD:
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
     return await call_next(req)
