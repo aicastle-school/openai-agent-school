@@ -41,8 +41,13 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     except Exception as e:
         return {"ok": False, "symbol": symbol, "error": str(e)}
 
+## health check
+@mcp.custom_route("/", methods=["GET"])
+async def root(_req):
+    return {"status": "ok"}
+
 ## app path
-app = mcp.http_app(path="/")
+app = mcp.http_app(path="/mcp")
 
 ## PASSWORD
 PASSWORD = os.getenv("PASSWORD", "")
