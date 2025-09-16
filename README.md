@@ -41,7 +41,7 @@ uv sync --frozen && uv cache prune --ci
 ### 1.2. 앱 실행
 
 ```sh
-uv run gunicorn --timeout 0 --reload app:app
+uv run gunicorn --timeout 0 --reload agent_server:app
 ```
 - 기본 포트: `8000`
 
