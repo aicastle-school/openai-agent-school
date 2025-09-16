@@ -1,5 +1,4 @@
 from typing import Dict, Any
-import yfinance as yf
 
 def get_stock_price(symbol: str) -> Dict[str, Any]:
     """
@@ -11,6 +10,8 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     """
     
     try:
+        import yfinance as yf
+        
         ticker = yf.Ticker(symbol)
         info = ticker.fast_info
 

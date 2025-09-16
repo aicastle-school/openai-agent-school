@@ -69,7 +69,7 @@ app.jinja_env.auto_reload = True
 # 모든 도메인 허용
 CORS(app) 
 
-# 간단한 토큰 생성 함수
+# 토큰 생성 함수
 def generate_auth_token():
     password = os.environ.get('PASSWORD', '').strip()
     return hashlib.md5(f"{password}salt".encode()).hexdigest()
@@ -208,7 +208,4 @@ def chat_api():
     return Response(generate(), mimetype='text/plain')
 
 if __name__ == "__main__":
-    app.run(
-        host="0.0.0.0",
-        port=int(os.getenv("PORT", 8000)),
-    )
+    app.run()

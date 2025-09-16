@@ -1,7 +1,11 @@
 from typing import Dict, Any
-import yfinance as yf
-
+from starlette.responses import JSONResponse
 from fastmcp import FastMCP
+import uvicorn
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 mcp = FastMCP("My MCP Server")
 
 @mcp.tool
@@ -13,8 +17,9 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: 주가 정보
     """
-    
     try:
+        import yfinance as yf
+
         ticker = yf.Ticker(symbol)
         info = ticker.fast_info
 
@@ -36,12 +41,17 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
     except Exception as e:
         return {"ok": False, "symbol": symbol, "error": str(e)}
 
+## app path
+app = mcp.http_app(path="/")
+
+## PASSWORD
+PASSWORD = os.getenv("PASSWORD", "")
+
+@app.middleware("http")
+async def gate(req, call_next):
+    if PASSWORD and req.query_params.get("password") != PASSWORD:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    return await call_next(req)
 
 if __name__ == "__main__":
-    import os
-    mcp.run(
-        transport="streamable-http", 
-        host="0.0.0.0",
-        port=int(os.getenv("PORT", 8081)),
-        path="/",
-    )
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8081)))
