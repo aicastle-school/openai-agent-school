@@ -49,8 +49,8 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
 async def root(_req):
     return JSONResponse({"status": "ok"})
 
-# FastMCP의 HTTP 앱 가져오기
-app = mcp.http_app(path="/")
+# mcp 경로
+app = mcp.http_app(path="/mcp")
 
 # 비밀번호 환경 변수
 PASSWORD = os.getenv("PASSWORD", "")
