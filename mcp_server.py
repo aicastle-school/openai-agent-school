@@ -1,6 +1,10 @@
 from typing import Dict, Any
 import yfinance as yf
 
+from fastmcp import FastMCP
+mcp = FastMCP("My MCP Server")
+
+@mcp.tool
 def get_stock_price(symbol: str) -> Dict[str, Any]:
     """
     주가 조회 (Yahoo Finance 기반)
@@ -33,3 +37,11 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
         return {"ok": False, "symbol": symbol, "error": str(e)}
 
 
+if __name__ == "__main__":
+    import os
+    mcp.run(
+        transport="streamable-http", 
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8081)),
+        path="/",
+    )

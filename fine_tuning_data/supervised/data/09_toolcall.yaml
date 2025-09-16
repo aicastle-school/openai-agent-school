@@ -1,0 +1,30 @@
+messages:
+  - role: system
+    content: 당신은 주가를 알려주는 챗봇입니다.
+
+  - role: user
+    content: 애플 주가가 얼마야?
+
+  - role: assistant
+    tool_calls:
+      - id: call_id
+        type: function
+        function:
+          name: get_stock_price
+          arguments: '{"symbol": "AAPL"}'
+
+tools:
+  - type: function
+    function:
+      name: get_stock_price
+      description: Get the current stock price
+      strict: true
+      parameters:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The stock symbol
+        additionalProperties: false
+        required:
+          - symbol

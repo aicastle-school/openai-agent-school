@@ -25,9 +25,7 @@ def deep_merge(base_dict, override_dict):
 def load_config_overrides():
     override_paths = [
         './config.overrides.jsonc',
-        './config.overrides.json',
         '/etc/secrets/config.overrides.jsonc',
-        '/etc/secrets/config.overrides.json',
     ]
     
     for path in override_paths:
@@ -57,7 +55,7 @@ else:
     config = {"model": "gpt-5"}
     print("Using default model: gpt-5")
 
-# config.overrides.json
+# config.overrides.jsonc
 config_overrides = load_config_overrides()
 if config_overrides:
     config = deep_merge(config, config_overrides)
@@ -210,4 +208,7 @@ def chat_api():
     return Response(generate(), mimetype='text/plain')
 
 if __name__ == "__main__":
-    app.run()
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", 8000)),
+    )

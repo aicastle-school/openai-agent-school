@@ -1,6 +1,7 @@
 {
     "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
     "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
+    "postStartCommand": "[ ! -f config.overrides.jsonc ] && cp .devcontainer/example/config.overrides.jsonc config.overrides.jsonc || echo 'config.overrides.jsonc already exists, skipping'; [ ! -f .env ] && cp .devcontainer/example/.env .env || echo '.env already exists, skipping'",
     "customizations": {
         "vscode": {
             "extensions": [

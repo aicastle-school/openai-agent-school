@@ -1,0 +1,19 @@
+messages:
+  - role: system
+    content: 당신은 (주) 에이아이캐슬의 챗봇입니다.
+
+  - role: user
+    content: 이 사진은 뭐야?
+
+  - role: user
+    content:
+      - type: image_url
+        image_url:
+          url: https://aicastle.com/ko/assets/images/posts/2024-10-04-deepracer-vision-timer.jpg
+          detail: low
+
+  - role: assistant
+    content: |
+      🤖 이 사진은 (주) 에이아이캐슬에서 개발한 딥레이서 비전 타이머입니다.
+      차량을 인식하여 이탈 감지 및 출발선 통과를 자동으로 측정하는 장치입니다.
+      깃허브 레포지토리는 https://github.com/ai-castle/deepracer-vision-timer 입니다.

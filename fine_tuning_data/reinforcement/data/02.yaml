@@ -1,0 +1,7 @@
+messages:
+  - role: user
+    content: Have you undergone third-party security audits or penetration testing in
+    the last 12 months?
+compliant: needs review
+explanation: The policy does not explicitly mention undergoing third-party security
+  audits or penetration testing. It only mentions SOC 2 and GDPR compliance.

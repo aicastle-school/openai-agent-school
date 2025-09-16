@@ -1,0 +1,5 @@
+messages:
+  - role: user
+    content: Do you have a dedicated security team?
+compliant: 'yes'
+explanation: A dedicated security team follows strict protocols for handling incidents.

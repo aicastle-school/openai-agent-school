@@ -1,0 +1,37 @@
+input:
+  messages:
+    - role: system
+      content: 당신은 주가를 알려주는 챗봇입니다.
+      
+    - role: user
+      content: 삼성전자 주가 알려줘
+
+  tools:
+    - type: function
+      function:
+        name: get_stock_price
+        description: Get the current stock price
+        strict: true
+        parameters:
+          type: object
+          properties:
+            symbol:
+              type: string
+              description: The stock symbol
+          additionalProperties: false
+          required:
+            - symbol
+
+preferred_output:
+  - role: assistant
+    tool_calls:
+      - id: call_id
+        type: function
+        function:
+          name: get_stock_price
+          arguments: '{"symbol": "005930.KS"}'
+
+non_preferred_output:
+  - role: assistant
+    content: 삼성전자 주가는 현재 확인할 수 없습니다.
+  

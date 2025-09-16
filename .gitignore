@@ -1,7 +1,13 @@
 .venv/
+__pycache__/
+
 .env
 config.overrides.jsonc
-config.overrides.json
+
 test*
 data.jsonl
-__pycache__/
+grader.json
+
+
+!.devcontainer/example/.env
+!.devcontainer/example/config.overrides.jsonc
