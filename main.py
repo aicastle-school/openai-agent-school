@@ -32,19 +32,30 @@ mcp_app = mcp.http_app()
 app = FastAPI(lifespan=mcp_app.lifespan)
 
 # health check endpoint
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
+    return templates.TemplateResponse("index.html", {"request": request, "title": title})
+
 @app.get("/health")
-async def root():
+async def health_check():
     return {"status": "ok"}
 
 #################################################################
 ######################## MCP Server #############################
 #################################################################
 
-# MCP POST 요청 처리 (실제 MCP 통신)
-@app.api_route("/mcp", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+# MCP 요청 처리 (실제 MCP 통신)
+@app.api_route("/mcp", methods=["POST", "PUT", "DELETE", "PATCH"])
 async def mcp_handler(request: Request):
     return await mcp_app(request.scope, request.receive, request._send)
+
+# MCP GET 요청 처리 (툴 목록 표시)
+@app.get("/mcp", response_class=HTMLResponse)
+async def mcp_get_handler(request: Request):
+    tools_list = [{"name": name, "description": (fn.__doc__ or "설명 없음").strip()} 
+                  for name, fn in inspect.getmembers(tools, inspect.isfunction)]
+    return templates.TemplateResponse("mcp.html", {"request": request, "tools": tools_list})
 
 
 # MCP 비밀번호 보호 미들웨어
@@ -174,14 +185,14 @@ async def index(request: Request, auth_token: Optional[str] = Cookie(None)):
         return RedirectResponse(url="/agent/login", status_code=302)
     
     title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
-    return templates.TemplateResponse("index.html", {
+    return templates.TemplateResponse("agent.html", {
         "request": request,
         "title": title,
         "config": {'PASSWORD': os.environ.get('PASSWORD')}
     })
 
 ### 채팅 API 
-@app.post("/agent/api/chat")
+@app.post("/agent/api")
 async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
     if not is_authenticated(auth_token):
         raise HTTPException(status_code=401, detail="Unauthorized")
