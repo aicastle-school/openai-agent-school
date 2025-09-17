@@ -40,6 +40,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 #################################################################
 ######################## MCP Server #############################
 #################################################################
