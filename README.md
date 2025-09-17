@@ -57,8 +57,9 @@ uv run main.py
 
 ### KEEPALIVE_URL
 - 실행 중인 앱이 일정시간 동안 접속이 없으면 유휴상태가 될 경우 `KEEPALIVE_URL`를 github actions의 환경변수(secrets)에 지정하여 주기적으로 접속하는 cron 작업을 수행할 수 있음.
-- 레포지토리 접속 > settings > Secrets and Variables > Actions > New repository secret 에 접속하여 아래와 같이 입력 (Secret에는 본인이 배포한 URL로 입력)
-- render 배포시 예시
+- Fork한 경우 Fork한 레포지토리 접속하여 상단의 Actions 탭에서 Actions를 활성화 하고 .github/workflows/keepalive-url.yml 을 활성화 하세요.
+- 레포지토리 > settings > Secrets and Variables > Actions > New repository secret 에 접속하여 아래와 같이 입력 (Secret에는 본인이 배포한 URL로 입력)
+- 예시
     - Name: `KEEPALIVE_URL`
     - Secret: `https://<your-project-name>.onrender.com`
 
