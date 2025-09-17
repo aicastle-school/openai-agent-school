@@ -569,6 +569,20 @@
         let previousResponseId = null;
         let isProcessing = false;
         let uploadedFiles = []; // 업로드된 파일들을 저장하는 배열
+        let currentImageHTML = ''; // 현재 생성된 이미지 HTML 저장
+        let updateTextScheduled = false; // DOM 업데이트 스케줄링 플래그
+
+        // 텍스트 업데이트를 최적화하는 함수
+        function scheduleTextUpdate(textContainer, accumulatedText) {
+            if (updateTextScheduled) return;
+            
+            updateTextScheduled = true;
+            requestAnimationFrame(() => {
+                const displayText = accumulatedText.replace(/\n/g, '<br>');
+                textContainer.innerHTML = displayText;
+                updateTextScheduled = false;
+            });
+        }
 
         // 상태 메시지 변환 함수
         function getStatusMessage(status) {
@@ -943,6 +957,7 @@
                 let assistantMessageDiv = null;
                 let accumulatedText = '';
                 let buffer = '';
+                currentImageHTML = ''; // 새 응답 시작시 이미지 HTML 초기화
 
                 while (true) {
                         const { done, value } = await reader.read();
@@ -997,13 +1012,28 @@
                                                 contentElement = document.createElement('div');
                                                 contentElement.className = 'message-content';
                                                 assistantMessageDiv.appendChild(contentElement);
+                                                
+                                                // 이미지 영역과 텍스트 영역을 분리
+                                                const imageContainer = document.createElement('div');
+                                                imageContainer.className = 'image-container';
+                                                contentElement.appendChild(imageContainer);
+                                                
+                                                const textContainer = document.createElement('div');
+                                                textContainer.className = 'text-container';
+                                                contentElement.appendChild(textContainer);
                                             }
                                             
-                                            // 텍스트 내용만 업데이트 (스피너는 그대로 유지)
-                                            if (typeof marked !== 'undefined') {
-                                                contentElement.innerHTML = marked.parse(accumulatedText);
-                                            } else {
-                                                contentElement.innerHTML = accumulatedText.replace(/\n/g, '<br>');
+                                            // 기존 이미지 유지하고 텍스트만 업데이트
+                                            const imageContainer = contentElement.querySelector('.image-container');
+                                            const textContainer = contentElement.querySelector('.text-container');
+                                            
+                                            if (imageContainer && currentImageHTML && !imageContainer.innerHTML) {
+                                                imageContainer.innerHTML = currentImageHTML;
+                                            }
+                                            
+                                            // 텍스트는 최적화된 방식으로 업데이트
+                                            if (textContainer) {
+                                                scheduleTextUpdate(textContainer, accumulatedText);
                                             }
 
                                             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
@@ -1036,19 +1066,34 @@
                                 contentElement = document.createElement('div');
                                 contentElement.className = 'message-content';
                                 assistantMessageDiv.appendChild(contentElement);
+                                
+                                // 이미지 영역과 텍스트 영역을 분리
+                                const imageContainer = document.createElement('div');
+                                imageContainer.className = 'image-container';
+                                contentElement.appendChild(imageContainer);
+                                
+                                const textContainer = document.createElement('div');
+                                textContainer.className = 'text-container';
+                                contentElement.appendChild(textContainer);
                             }
                             
-                            // 기존 텍스트 내용 유지하고 이미지 추가
-                            let textContent = '';
-                            if (accumulatedText) {
-                                if (typeof marked !== 'undefined') {
-                                    textContent = marked.parse(accumulatedText);
-                                } else {
-                                    textContent = accumulatedText.replace(/\n/g, '<br>');
-                                }
+                            // 이미지 HTML을 현재 이미지 변수에 저장
+                            const imageHTML = `<img src="${data.image_data}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 10px;">`;
+                            currentImageHTML = imageHTML;
+                            
+                            // 이미지 컨테이너에 이미지 추가
+                            const imageContainer = contentElement.querySelector('.image-container');
+                            const textContainer = contentElement.querySelector('.text-container');
+                            
+                            if (imageContainer) {
+                                imageContainer.innerHTML = currentImageHTML;
                             }
                             
-                            contentElement.innerHTML = textContent + `<img src="${data.image_data}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px;">`;
+                            // 기존 텍스트가 있으면 유지
+                            if (textContainer && accumulatedText) {
+                                const displayText = accumulatedText.replace(/\n/g, '<br>');
+                                textContainer.innerHTML = displayText;
+                            }
                             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;                                        } else if (data.type === 'done') {
                                             // 응답 완료 시 스피너와 상태 메시지 제거
                                             if (assistantMessageDiv) {
@@ -1056,6 +1101,21 @@
                                                 if (thinkingElement) {
                                                     thinkingElement.remove();
                                                 }
+                                                
+                                                // 응답 완료 시 최종 Markdown 파싱 적용
+                                                const contentElement = assistantMessageDiv.querySelector('.message-content');
+                                                const textContainer = contentElement ? contentElement.querySelector('.text-container') : null;
+                                                
+                                                if (textContainer && accumulatedText) {
+                                                    let finalTextContent = '';
+                                                    if (typeof marked !== 'undefined') {
+                                                        finalTextContent = marked.parse(accumulatedText);
+                                                    } else {
+                                                        finalTextContent = accumulatedText.replace(/\n/g, '<br>');
+                                                    }
+                                                    textContainer.innerHTML = finalTextContent;
+                                                }
+                                                
                                                 assistantMessageDiv.id = ''; // ID 제거
                                             }
 
