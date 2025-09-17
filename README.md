@@ -34,9 +34,9 @@ uv sync --frozen && uv cache prune --ci
 - 파일 위치: 프로젝트 폴더 (우선) 또는 /etc/secrets/
 - 코드스페이스 실행 시 예제 파일 ([.devcontainer/example/config.overrides.jsonc](.devcontainer/example/config.overrides.jsonc))이 자동으로 프로젝트 폴더로 복사됨
 
-#### function_call.py (선택)
+#### tools.py (선택)
 
-- function_call에서 사용할 함수를 [function_call.py](function_call.py)에 작성.
+- function_call에서 사용할 함수를 [tools.py](tools.py)에 작성.
 
 ### 1.2. 앱 실행
 
@@ -48,7 +48,7 @@ uv run gunicorn --timeout 0 --reload agent_app:app
 ## [2] MCP 서버
 
 ### 2.1. mcp_server.py 작성
-- [mcp_server.py](mcp_server.py)에 mcp 툴을 정의합니다.
+- mcp에서 사용할 툴을 [tools.py](tools.py)에 작성.
 
 ### 2.2. 서버 실행
 ```sh

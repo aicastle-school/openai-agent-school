@@ -165,8 +165,8 @@ def chat_api():
                     elif event.type == "response.output_item.done":
                         if event.item.type == "function_call":
                             try:
-                                import function_call
-                                func = getattr(function_call, event.item.name)
+                                import tools
+                                func = getattr(tools, event.item.name)
                                 args = json.loads(event.item.arguments)
                                 func_output = str(func(**args))
                             except Exception as e:
