@@ -32,8 +32,9 @@ mcp_app = mcp.http_app()
 app = FastAPI(lifespan=mcp_app.lifespan)
 
 # health check endpoint
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def root(request: Request):
+    # return {"status": "ok"}
     title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
     return templates.TemplateResponse("index.html", {"request": request, "title": title})
 
@@ -51,8 +52,9 @@ async def mcp_handler(request: Request):
     return await mcp_app(request.scope, request.receive, request._send)
 
 # MCP GET 요청 처리 (툴 목록 표시)
-@app.get("/mcp", response_class=HTMLResponse)
+@app.get("/mcp")
 async def mcp_get_handler(request: Request):
+    # return {"status": "ok"}
     tools_list = [{"name": name, "description": (fn.__doc__ or "설명 없음").strip()} 
                   for name, fn in inspect.getmembers(tools, inspect.isfunction)]
     return templates.TemplateResponse("mcp.html", {"request": request, "tools": tools_list})
@@ -280,8 +282,6 @@ async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
 
     return StreamingResponse(generate(), media_type="text/plain")
 
-
-
 ##################################################################
 ####################### Server Startup ##########################
 ##################################################################
@@ -293,7 +293,7 @@ if __name__ == "__main__":
     print(f"🔧 MCP Server: http://localhost:{port}/mcp")
     
     uvicorn.run(
-        f"main:app",  # 동적으로 모듈명 생성
+        "main:app",
         host="0.0.0.0",
         port=port,
         reload=True,
