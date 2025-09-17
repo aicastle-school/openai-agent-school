@@ -43,7 +43,7 @@ uv sync --frozen && uv cache prune --ci
 
 ## [2] 앱 실행
 
-### 실행 명령어
+### 실행
 
 ```sh
 uv run main.py
@@ -51,12 +51,16 @@ uv run main.py
 
 - 포트: 환경변수 `PORT`값이 지정된 경우 이 값을 사용하며, 그렇지 않을 경우 `8000`을 사용함.
 
+- agent 앱 주소: <https://localhost:8000/agent>
+
+- mcp 서버 주소: <https://localhost:8000/mcp>
+
 ### KEEPALIVE_URL
 - 실행 중인 앱이 일정시간 동안 접속이 없으면 유휴상태가 될 경우 `KEEPALIVE_URL`를 github actions의 환경변수(secrets)에 지정하여 주기적으로 접속하는 cron 작업을 수행할 수 있음.
 - 레포지토리 접속 > settings > Secrets and Variables > Actions > New repository secret 에 접속하여 아래와 같이 입력 (Secret에는 본인이 배포한 URL로 입력)
-- 예시
+- render 배포시 예시
     - Name: `KEEPALIVE_URL`
-    - Secret: `https://openai-api-agent-project.onrender.com`
+    - Secret: `https://<your-project-name>.onrender.com`
 
 
 ## [3] 파인 튜닝 데이터

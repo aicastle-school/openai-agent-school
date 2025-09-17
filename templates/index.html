@@ -528,7 +528,7 @@
         <h1>
             {{ title }}
             {% if config.get('PASSWORD') %}
-            <a href="/logout" class="logout-btn">Logout</a>
+            <a href="/agent/logout" class="logout-btn">Logout</a>
             {% endif %}
         </h1>
 
@@ -922,7 +922,7 @@
                 }];
 
                 // API 호출 (스트리밍만 사용)
-                const response = await fetch('/api/chat', {
+                const response = await fetch('/agent/api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

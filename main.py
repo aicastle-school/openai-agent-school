@@ -31,18 +31,10 @@ mcp_app = mcp.http_app()
 # FastAPI 앱 생성 (MCP lifespan 연결)
 app = FastAPI(lifespan=mcp_app.lifespan)
 
-# CORS 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # health check endpoint
+@app.get("/")
 @app.get("/health")
-async def health_check():
+async def root():
     return {"status": "ok"}
 
 #################################################################
@@ -75,6 +67,14 @@ client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
 # 템플릿 설정
 templates = Jinja2Templates(directory="templates")
 
+# CORS 설정
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def apply_config_overrides(base_dict, override_dict):
     if not isinstance(override_dict, dict):
@@ -142,36 +142,36 @@ def is_authenticated(auth_token: Optional[str] = None):
 
 
 # 로그인 페이지
-@app.get("/login", response_class=HTMLResponse)
+@app.get("/agent/login", response_class=HTMLResponse)
 async def login_page(request: Request, error: str = None):
     if not check_password_required():
-        return RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url="/agent", status_code=302)
     return templates.TemplateResponse("login.html", {"request": request, "error": error})
 
-@app.post("/login")
+@app.post("/agent/login")
 async def login_submit(password: str = Form(...)):
     if not check_password_required():
-        return RedirectResponse(url="/", status_code=302)
+        return RedirectResponse(url="/agent", status_code=302)
     
     env_password = os.environ.get('PASSWORD', '').strip()
     if password.strip() == env_password:
-        response = RedirectResponse(url="/", status_code=302)
+        response = RedirectResponse(url="/agent", status_code=302)
         response.set_cookie("auth_token", generate_auth_token(), max_age=60*60*24*30)
         return response
     else:
-        return RedirectResponse(url="/login?error=Invalid password", status_code=302)
+        return RedirectResponse(url="/agent/login?error=Invalid password", status_code=302)
 
-@app.get("/logout")
+@app.get("/agent/logout")
 async def logout():
-    response = RedirectResponse(url="/login", status_code=302)
+    response = RedirectResponse(url="/agent/login", status_code=302)
     response.delete_cookie("auth_token")
     return response
 
 # 메인 페이지
-@app.get("/", response_class=HTMLResponse)
+@app.get("/agent", response_class=HTMLResponse)
 async def index(request: Request, auth_token: Optional[str] = Cookie(None)):
     if not is_authenticated(auth_token):
-        return RedirectResponse(url="/login", status_code=302)
+        return RedirectResponse(url="/agent/login", status_code=302)
     
     title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
     return templates.TemplateResponse("index.html", {
@@ -181,7 +181,7 @@ async def index(request: Request, auth_token: Optional[str] = Cookie(None)):
     })
 
 ### 채팅 API 
-@app.post("/api/chat")
+@app.post("/agent/api/chat")
 async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
     if not is_authenticated(auth_token):
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -278,7 +278,7 @@ async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     print(f"🚀 Starting unified server on port {port}")
-    print(f"🤖 Agent App: http://localhost:{port}")
+    print(f"🤖 Agent App: http://localhost:{port}/agent")
     print(f"🔧 MCP Server: http://localhost:{port}/mcp")
     
     uvicorn.run(
