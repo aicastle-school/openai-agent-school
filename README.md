@@ -14,47 +14,49 @@ uv sync --frozen && uv cache prune --ci
 ```
 
 
-## [1] Agent 앱
+## [1] 프로젝트 세팅
 
-### 1.1. 프로젝트 세팅
+### 1.1. 환경 변수 (.env)
 
-#### 환경 변수 (필수)
+- **.env 파일**로 설정하거나 **배포 환경에서 지정**
+- `OPENAI_API_KEY`: Agent 앱 또는 파인튜닝할 데이터를 업로드할 때 사용할 OpenAI API 키
+- `PROMPT_ID` Agent 앱에서 사용할 OpenAI 프롬프트 ID 
+- `TITLE`: Agent앱의 상단 제목  
+- `PASSWORD`: 비밀번호 설정 (비워둘 경우 누구나 접근 가능)
+    - Agent 앱에서는 로그인해야 접근 가능해짐
+    - MCP 서버에서는 `?password=<your-password>`와 같이 쿼리스트링으로 전달해야 접근 가능
 
-- 환경변수를 프로젝트 폴더의 .env 파일로 설정하거나 배포 환경에서 등록
-- 코드스페이스 실행 시 예제 파일 ([.devcontainer/example/.env](.devcontainer/example/.env))이 자동으로 프로젝트 폴더로 복사됨.
+### 1.2. config.overrides.jsonc
 
-    > `OPENAI_API_KEY`: OpenAI API키를 설정  
-    > `PROMPT_ID` (옵션): OpenAI 대시보드에서 프롬프트 ID 입력  
-    > `TITLE` (옵션): 실행 될 앱의 상단 제목  
-    > `PASSWORD` (옵션): 비밀번호가 설정된 앱을 원할경우 입력
+- Agent 앱에서 openai api 요청시 responses create 에서 덮어 쓸 구성 값
+- **config.overrides.jsonc 파일**로 설정하거나 **배포 환경에서 지정**
+- 파일 위치
+    - 프로젝트 폴더 (우선 순위)
+    - /etc/secrets/
 
-#### config.overrides.jsonc (선택)
 
-- openai responses api 요청시 덮어쓸 파라미터가 있다면 config.overrides.jsonc에 정의.
-- 파일 위치: 프로젝트 폴더 (우선) 또는 /etc/secrets/
-- 코드스페이스 실행 시 예제 파일 ([.devcontainer/example/config.overrides.jsonc](.devcontainer/example/config.overrides.jsonc))이 자동으로 프로젝트 폴더로 복사됨
+### 1.3. tools.py
 
-#### tools.py (선택)
+- Agent 앱에서 Function Calling으로 사용할 함수.
+- 또는 MCP 서버에서 tool로 사용할 함수.
+- 파일 위치: [tools.py](tools.py)
 
-- function_call에서 사용할 함수를 [tools.py](tools.py)에 작성.
+## [2] 앱 실행
 
-### 1.2. 앱 실행
+### 실행 명령어
 
 ```sh
-uv run gunicorn --timeout 0 --reload agent_app:app
+uv run main.py
 ```
-- 기본 포트: `8000`
 
-## [2] MCP 서버
+- 포트: 환경변수 `PORT`값이 지정된 경우 이 값을 사용하며, 그렇지 않을 경우 `8000`을 사용함.
 
-### 2.1. mcp_server.py 작성
-- mcp에서 사용할 툴을 [tools.py](tools.py)에 작성.
-
-### 2.2. 서버 실행
-```sh
-uv run mcp_server.py
-```
-- 기본 포트: `8081`
+### KEEPALIVE_URL
+- 실행 중인 앱이 일정시간 동안 접속이 없으면 유휴상태가 될 경우 `KEEPALIVE_URL`를 github actions의 환경변수(secrets)에 지정하여 주기적으로 접속하는 cron 작업을 수행할 수 있음.
+- 레포지토리 접속 > settings > Secrets and Variables > Actions > New repository secret 에 접속하여 아래와 같이 입력 (Secret에는 본인이 배포한 URL로 입력)
+- 예시
+    - Name: `KEEPALIVE_URL`
+    - Secret: `https://openai-api-agent-project.onrender.com`
 
 
 ## [3] 파인 튜닝 데이터

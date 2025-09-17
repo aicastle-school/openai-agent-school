@@ -1,0 +1,12 @@
+on:
+  schedule:
+    - cron: "*/10 * * * *" # 매 10분마다 실행
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      KEEPALIVE_URL: ${{ secrets.KEEPALIVE_URL }}
+    steps:
+      - run: curl -fsS --max-time 10 "$KEEPALIVE_URL" || true
