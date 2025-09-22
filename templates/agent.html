@@ -589,6 +589,33 @@
             return status;
         }
 
+        // sandbox:// 링크를 프록시 링크로 변환하는 함수
+        function convertSandboxLinks(text, annotations = []) {
+            if (!annotations || annotations.length === 0) return text;
+            
+            // 파일명과 annotation 매핑 생성
+            const fileMap = {};
+            annotations.forEach(annotation => {
+                if (annotation.type === 'container_file_citation' && annotation.filename) {
+                    fileMap[annotation.filename] = {
+                        container_id: annotation.container_id,
+                        file_id: annotation.file_id,
+                        filename: annotation.filename
+                    };
+                }
+            });
+            
+            // sandbox:/mnt/data/filename 패턴을 찾아서 프록시 링크로 변환
+            return text.replace(/sandbox:\/mnt\/data\/([^)\s]+)/g, (match, filename) => {
+                const fileInfo = fileMap[filename];
+                if (fileInfo) {
+                    // filename을 쿼리 파라미터로 포함하여 원래 파일명으로 다운로드되도록 함
+                    return `/agent/files/${fileInfo.container_id}/${fileInfo.file_id}?filename=${encodeURIComponent(fileInfo.filename)}`;
+                }
+                return match; // 매칭되는 파일이 없으면 원래 링크 유지
+            });
+        }
+
         function addMessage(content, isUser = false, files = []) {
             const messagesDiv = document.getElementById('messages');
             const messageDiv = document.createElement('div');
@@ -957,6 +984,7 @@
                 let assistantMessageDiv = null;
                 let accumulatedText = '';
                 let buffer = '';
+                let currentAnnotations = []; // annotations 저장
                 currentImageHTML = ''; // 새 응답 시작시 이미지 HTML 초기화
 
                 while (true) {
@@ -1095,6 +1123,11 @@
                                 textContainer.innerHTML = displayText;
                             }
                             document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;                                        } else if (data.type === 'done') {
+                                            // annotations 저장
+                                            if (data.annotations) {
+                                                currentAnnotations = data.annotations;
+                                            }
+                                            
                                             // 응답 완료 시 스피너와 상태 메시지 제거
                                             if (assistantMessageDiv) {
                                                 const thinkingElement = assistantMessageDiv.querySelector('.thinking-message');
@@ -1102,16 +1135,19 @@
                                                     thinkingElement.remove();
                                                 }
                                                 
-                                                // 응답 완료 시 최종 Markdown 파싱 적용
+                                                // 응답 완료 시 최종 Markdown 파싱 및 sandbox 링크 변환 적용
                                                 const contentElement = assistantMessageDiv.querySelector('.message-content');
                                                 const textContainer = contentElement ? contentElement.querySelector('.text-container') : null;
                                                 
                                                 if (textContainer && accumulatedText) {
+                                                    // sandbox 링크를 프록시 링크로 변환
+                                                    const convertedText = convertSandboxLinks(accumulatedText, currentAnnotations);
+                                                    
                                                     let finalTextContent = '';
                                                     if (typeof marked !== 'undefined') {
-                                                        finalTextContent = marked.parse(accumulatedText);
+                                                        finalTextContent = marked.parse(convertedText);
                                                     } else {
-                                                        finalTextContent = accumulatedText.replace(/\n/g, '<br>');
+                                                        finalTextContent = convertedText.replace(/\n/g, '<br>');
                                                     }
                                                     textContainer.innerHTML = finalTextContent;
                                                 }
@@ -1123,6 +1159,26 @@
                                                 previousResponseId = data.response_id;
                                             }
                                             console.log('Stream completed');
+                                        } else if (data.type === 'error') {
+                                            // 서버에서 에러가 발생한 경우 처리
+                                            console.error('Server error:', data.message);
+                                            
+                                            // 스피너가 있는 어시스턴트 메시지 박스 제거
+                                            const currentAssistantMessage = document.getElementById('current-assistant-message');
+                                            if (currentAssistantMessage) {
+                                                currentAssistantMessage.remove();
+                                            }
+                                            
+                                            // 오류 메시지를 빨간색으로 중앙 정렬해서 표시
+                                            const messagesDiv = document.getElementById('messages');
+                                            const errorDiv = document.createElement('div');
+                                            errorDiv.className = 'error-message';
+                                            errorDiv.textContent = `Server error: ${data.message}`;
+                                            messagesDiv.appendChild(errorDiv);
+                                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                                            
+                                            // 처리 완료로 설정
+                                            setProcessing(false);
                                         }
                                     }
                                 } catch (e) {
