@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException, Form, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import os, json, hashlib, inspect, re
 from openai import OpenAI
@@ -78,8 +79,11 @@ if PASSWORD := os.getenv("PASSWORD", ""):
 # OpenAI 클라이언트
 client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
 
+# Static 파일 서빙 설정
+app.mount("/static", StaticFiles(directory="assets/static"), name="static")
+
 # 템플릿 설정
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="assets/templates")
 
 # CORS 설정
 app.add_middleware(
