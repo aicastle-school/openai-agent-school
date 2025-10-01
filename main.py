@@ -3,9 +3,8 @@ from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse, Res
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import os, json, re
+import os, json
 from openai import OpenAI
-from typing import Optional
 import uvicorn
 import httpx
 from dotenv import load_dotenv
