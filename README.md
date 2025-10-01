@@ -1,5 +1,7 @@
 # OpenAI API Agent School - Project
 
+[![smithery badge](https://smithery.ai/badge/@aicastle-school/openai-api-agent-project11)](https://smithery.ai/server/@aicastle-school/openai-api-agent-project11)
+
 본 자료는 [(주)에이아이캐슬](https://aicastle.com)에서 만든 [**OpenAI API로 배우는 Agent 개발 첫걸음** ](https://openai-api-agent.aicastle.school/)(OpenAI API Agent School) 강의 프로젝트 자료입니다.
 
 
@@ -13,6 +15,13 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --frozen && uv cache prune --ci
 ```
 
+### Installing via Smithery
+
+To install openai-api-agent-project11 automatically via [Smithery](https://smithery.ai/server/@aicastle-school/openai-api-agent-project11):
+
+```bash
+npx -y @smithery/cli install @aicastle-school/openai-api-agent-project11
+```
 
 ## [1] 프로젝트 세팅
 
@@ -90,3 +99,4 @@ uv run main.py
     ```sh
     uv run fine_tuning_data/reinforcement/convert_and_upload.py
     ```
+
