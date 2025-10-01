@@ -14,16 +14,21 @@ from api_params import get_api_params
 # 환경변수 로드
 load_dotenv()
 
-# app 생성 및 설정
+# app 생성
 mcp_app = mcp.http_app(path="/")
 app = FastAPI(lifespan=mcp_app.lifespan)
 app.mount("/mcp", mcp_app)
+# app = FastAPI()
+
+# app 설정
 app.add_middleware(CORSMiddleware, allow_origins=["*"]) # CORS - 모든 출처 허용
 app.mount("/static", StaticFiles(directory="assets/static"), name="static") # Static 파일 서빙 설정
 templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
 
-# OpenAI 클라이언트 및 API 파라미터 설정
+# OpenAI 클라이언트 생성
 client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
+
+# API 파라미터 설정
 api_params = get_api_params()
 
 
