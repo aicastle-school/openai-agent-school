@@ -1,7 +1,7 @@
-runtime: "container"
-build:
-  dockerfile: "Dockerfile.smithery"
-  dockerBuildPath: "."
+runtime: "python"
+# build:
+#   dockerfile: "Dockerfile.smithery"
+#   dockerBuildPath: "."
 startCommand:
   type: "http"
   commandFunction: |
