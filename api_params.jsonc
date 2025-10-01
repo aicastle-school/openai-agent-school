@@ -1,0 +1,34 @@
+{
+
+  // "prompt": {
+  //   "variables": {
+  //     "user_name": "aicastle",
+  //     "pdf_file": {
+  //       "type": "input_file",
+  //       "file_id": "file-............"
+  //     },
+  //     "image_file": {
+  //       "type": "input_image",
+  //       "file_id": "file-............"
+  //     }
+  //   }
+  // },
+
+  "tools": [
+    {
+      "type": "mcp",
+      "server_label": "stock_price",
+      "server_url": "https://openai-api-agent-project.onrender.com/mcp",
+      "allowed_tools": [
+        "get_stock_price"
+      ],
+      "require_approval": "always"
+    }
+  ],
+  "store": true,
+  "include": [
+    "reasoning.encrypted_content",
+    "web_search_call.action.sources"
+  ]
+
+}

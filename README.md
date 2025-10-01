@@ -20,19 +20,18 @@ uv sync --frozen && uv cache prune --ci
 
 - **.env 파일**로 설정하거나 **배포 환경에서 지정**
 - `OPENAI_API_KEY`: Agent 앱 또는 파인튜닝할 데이터를 업로드할 때 사용할 OpenAI API 키
-- `PROMPT_ID` Agent 앱에서 사용할 OpenAI 프롬프트 ID 
-- `TITLE`: Agent앱의 상단 제목  
-- `PASSWORD`: 비밀번호 설정 (비워둘 경우 누구나 접근 가능)
-    - Agent 앱에서는 로그인해야 접근 가능해짐
-    - MCP 서버에서는 `?password=<your-password>`와 같이 쿼리스트링으로 전달해야 접근 가능
+- `PROMPT_ID`: Agent 앱에서 사용할 OpenAI 프롬프트 ID 
+- `TITLE`: Agent앱의 상단 제목
 
-### 1.2. config.overrides.jsonc
+### 1.2. api_params.overrides.jsonc
 
-- Agent 앱에서 openai api 요청시 responses create 에서 덮어 쓸 구성 값
-- **config.overrides.jsonc 파일**로 설정하거나 **배포 환경에서 지정**
+### 1.2. api_params.jsonc
+
+- Agent 앱에서 OpenAI API 요청시 responses.create()에서 사용할 파라미터 설정
+- **api_params.jsonc 파일**로 설정하거나 **배포 환경에서 지정**
 - 파일 위치
-    - 프로젝트 폴더 (우선 순위)
-    - /etc/secrets/
+    - ./api_params.jsonc
+    - /etc/secrets/api_params.jsonc
 
 
 ### 1.3. tools.py
@@ -51,9 +50,9 @@ uv run main.py
 
 - 포트: 환경변수 `PORT`값이 지정된 경우 이 값을 사용하며, 그렇지 않을 경우 `8000`을 사용함.
 
-- agent 앱 주소: <https://localhost:8000/agent>
+- Agent 앱 주소: <https://localhost:8000/>
 
-- mcp 서버 주소: <https://localhost:8000/mcp>
+- MCP 서버 주소: <https://localhost:8000/mcp>
 
 ### KEEPALIVE_URL
 - 실행 중인 앱이 일정시간 동안 접속이 없으면 유휴상태가 될 경우 `KEEPALIVE_URL`를 github actions의 환경변수(secrets)에 지정하여 주기적으로 접속하는 cron 작업을 수행할 수 있음.

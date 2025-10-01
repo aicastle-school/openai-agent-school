@@ -1,210 +1,44 @@
-from fastapi import FastAPI, Request, HTTPException, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, JSONResponse, Response
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import os, json, hashlib, inspect, re
+import os, json, re
 from openai import OpenAI
-import json5
-from fastmcp import FastMCP
 from typing import Optional
 import uvicorn
 import httpx
-
-# 환경변수
 from dotenv import load_dotenv
+from mcp_server import mcp
+from api_params import get_api_params
+
+# 환경변수 로드
 load_dotenv()
 
-##################################################################
-########################## FastAPI Setup #########################
-##################################################################
-
-# MCP 서버 설정 (lifespan 사용을 위해 먼저 생성)
-mcp = FastMCP("MCP Server")
-
-# tools.py 모듈의 모든 함수를 MCP 툴로 등록
-import tools
-for name, fn in inspect.getmembers(tools, inspect.isfunction):
-    mcp.tool(fn)
-
-# MCP 앱 생성
-mcp_app = mcp.http_app()
-
-# FastAPI 앱 생성 (MCP lifespan 연결)
+# app 생성 및 설정
+mcp_app = mcp.http_app(path="/")
 app = FastAPI(lifespan=mcp_app.lifespan)
+app.mount("/mcp", mcp_app)
+app.add_middleware(CORSMiddleware, allow_origins=["*"]) # CORS - 모든 출처 허용
+app.mount("/static", StaticFiles(directory="assets/static"), name="static") # Static 파일 서빙 설정
+templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
 
-# health check endpoint
-@app.get("/")
-async def root(request: Request):
-    # return {"status": "ok"}
-    title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
-    return templates.TemplateResponse("index.html", {"request": request, "title": title})
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok"}
-
-#################################################################
-######################## MCP Server #############################
-#################################################################
-
-# MCP 요청 처리 (실제 MCP 통신)
-@app.api_route("/mcp", methods=["POST", "PUT", "DELETE", "PATCH"])
-async def mcp_handler(request: Request):
-    return await mcp_app(request.scope, request.receive, request._send)
-
-# MCP GET 요청 처리 (툴 목록 표시)
-@app.get("/mcp")
-async def mcp_get_handler(request: Request):
-    # return {"status": "ok"}
-    tools_list = [{"name": name, "description": (fn.__doc__ or "설명 없음").strip()} 
-                  for name, fn in inspect.getmembers(tools, inspect.isfunction)]
-    return templates.TemplateResponse("mcp.html", {"request": request, "tools": tools_list})
-
-
-# MCP 비밀번호 보호 미들웨어
-if PASSWORD := os.getenv("PASSWORD", ""):
-    @app.middleware("http")
-    async def mcp_auth_middleware(request: Request, call_next):
-        if request.url.path == "/mcp" :
-            password_param = request.query_params.get("password")
-            if not password_param or password_param != PASSWORD:
-                return JSONResponse({"error": "Unauthorized"}, status_code=401)
-        return await call_next(request)
-
-##################################################################
-######################## Agent App ###############################
-##################################################################
-
-# OpenAI 클라이언트
+# OpenAI 클라이언트 및 API 파라미터 설정
 client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
+api_params = get_api_params()
 
-# Static 파일 서빙 설정
-app.mount("/static", StaticFiles(directory="assets/static"), name="static")
-
-# 템플릿 설정
-templates = Jinja2Templates(directory="assets/templates")
-
-# CORS 설정
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-def apply_config_overrides(base_dict, override_dict):
-    if not isinstance(override_dict, dict):
-        return override_dict
-    
-    result = base_dict.copy()
-    
-    for key, value in override_dict.items():
-        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-            result[key] = apply_config_overrides(result[key], value)
-        else:
-            result[key] = value
-    
-    return result
-
-def load_config_overrides():
-    override_paths = [
-        './config.overrides.jsonc',
-        '/etc/secrets/config.overrides.jsonc',
-    ]
-    
-    for path in override_paths:
-        if os.path.exists(path):
-            try:
-                with open(path, 'r') as f:
-                    content = f.read()
-                overrides = json5.loads(content)
-                print(f"Loaded config overrides from: {path}")
-                return overrides
-            except Exception as e:
-                print(f"Error loading config overrides from {path}: {e}")
-                continue
-    
-    print("No config overrides found")
-    return {}
-
-# config 설정
-config = {}
-if os.environ.get("PROMPT_ID"):
-    config = {"prompt": { "id": os.environ["PROMPT_ID"] }}
-    print(f"Using prompt ID from environment: {os.environ['PROMPT_ID']}")
-else:
-    config = {"model": "gpt-5"}
-    print("Using default model: gpt-5")
-
-# config.overrides.jsonc 적용
-config_overrides = load_config_overrides()
-if config_overrides:
-    config = apply_config_overrides(config, config_overrides)
-    print(f"Applied config overrides. Final config: {json.dumps(config, indent=2)}")
-
-# 인증 관련 함수들
-def generate_auth_token():
-    password = os.environ.get('PASSWORD', '').strip()
-    return hashlib.md5(f"{password}salt".encode()).hexdigest()
-
-def check_password_required():
-    password = os.environ.get('PASSWORD', '').strip()
-    return bool(password)
-
-def is_authenticated(auth_token: Optional[str] = None):
-    if not check_password_required():
-        return True
-    return auth_token == generate_auth_token()
-
-
-# 로그인 페이지
-@app.get("/agent/login", response_class=HTMLResponse)
-async def login_page(request: Request, error: str = None):
-    if not check_password_required():
-        return RedirectResponse(url="/agent", status_code=302)
-    return templates.TemplateResponse("login.html", {"request": request, "error": error})
-
-@app.post("/agent/login")
-async def login_submit(password: str = Form(...)):
-    if not check_password_required():
-        return RedirectResponse(url="/agent", status_code=302)
-    
-    env_password = os.environ.get('PASSWORD', '').strip()
-    if password.strip() == env_password:
-        response = RedirectResponse(url="/agent", status_code=302)
-        response.set_cookie("auth_token", generate_auth_token(), max_age=60*60*24*30)
-        return response
-    else:
-        return RedirectResponse(url="/agent/login?error=Invalid password", status_code=302)
-
-@app.get("/agent/logout")
-async def logout():
-    response = RedirectResponse(url="/agent/login", status_code=302)
-    response.delete_cookie("auth_token")
-    return response
 
 # 메인 페이지
-@app.get("/agent", response_class=HTMLResponse)
-async def index(request: Request, auth_token: Optional[str] = Cookie(None)):
-    if not is_authenticated(auth_token):
-        return RedirectResponse(url="/agent/login", status_code=302)
-    
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
     title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
-    return templates.TemplateResponse("agent.html", {
-        "request": request,
-        "title": title,
-        "config": {'PASSWORD': os.environ.get('PASSWORD')}
+    return templates.TemplateResponse(request, "index.html", {
+        "title": title
     })
 
-### 채팅 API 
-@app.post("/agent/api")
-async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
-    if not is_authenticated(auth_token):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    
-    # OpenAI 클라이언트 검증
+# 채팅 API
+@app.post("/api")
+async def chat_api(request: Request):
     if client is None:
         raise HTTPException(status_code=500, detail="OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.")
     
@@ -215,13 +49,13 @@ async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
     async def generate():
         nonlocal previous_response_id
         try:
-            api_params = config.copy()
-            api_params.update({
+            request_params = api_params.copy()
+            request_params.update({
                 'input': input_message,
                 'previous_response_id': previous_response_id,
                 'stream': True
             })
-            response = client.responses.create(**api_params)
+            response = client.responses.create(**request_params)
 
             max_repeats = 5
             for _ in range(max_repeats):
@@ -277,13 +111,13 @@ async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
                 # 함수 호출 결과가 있으면 다시 API 호출
                 if follow_up_input:
                     print(f"Making follow-up API call with {len(follow_up_input)}")
-                    api_params = config.copy()
-                    api_params.update({
+                    request_params = api_params.copy()
+                    request_params.update({
                         'input': follow_up_input,
                         'previous_response_id': previous_response_id,
                         'stream': True
                     })
-                    response = client.responses.create(**api_params)
+                    response = client.responses.create(**request_params)
                 else:
                     break
 
@@ -297,11 +131,8 @@ async def chat_api(request: Request, auth_token: Optional[str] = Cookie(None)):
     return StreamingResponse(generate(), media_type="text/plain")
 
 # 파일 프록시 엔드포인트 - sandbox 파일을 다운로드할 수 있게 해줌
-@app.get("/agent/files/{container_id}/{file_id}")
-async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = None, auth_token: Optional[str] = Cookie(None)):
-    if not is_authenticated(auth_token):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    
+@app.get("/files/{container_id}/{file_id}")
+async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = None):
     if not client:
         raise HTTPException(status_code=500, detail="OpenAI API key is not configured")
     
@@ -339,7 +170,7 @@ async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = No
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     print(f"🚀 Starting unified server on port {port}")
-    print(f"🤖 Agent App: http://localhost:{port}/agent")
+    print(f"🤖 Agent App: http://localhost:{port}/")
     print(f"🔧 MCP Server: http://localhost:{port}/mcp")
     
     uvicorn.run(

@@ -1,0 +1,41 @@
+nohup: ignoring input
+
+
+╭────────────────────────────────────────────────────────────────────────────╮
+│                                                                            │
+│        _ __ ___  _____           __  __  _____________    ____    ____     │
+│       _ __ ___ .'____/___ ______/ /_/  |/  / ____/ __ \  |___ \  / __ \    │
+│      _ __ ___ / /_  / __ `/ ___/ __/ /|_/ / /   / /_/ /  ___/ / / / / /    │
+│     _ __ ___ / __/ / /_/ (__  ) /_/ /  / / /___/ ____/  /  __/_/ /_/ /     │
+│    _ __ ___ /_/    \____/____/\__/_/  /_/\____/_/      /_____(*)____/      │
+│                                                                            │
+│                                                                            │
+│                                FastMCP  2.0                                │
+│                                                                            │
+│                                                                            │
+│                🖥️  Server name:     MCP Server                              │
+│                📦 Transport:       Streamable-HTTP                         │
+│                🔗 Server URL:      http://0.0.0.0:8001/mcp                 │
+│                                                                            │
+│                🏎️  FastMCP version: 2.12.3                                  │
+│                🤝 MCP SDK version: 1.14.0                                  │
+│                                                                            │
+│                📚 Docs:            https://gofastmcp.com                   │
+│                🚀 Deploy:          https://fastmcp.cloud                   │
+│                                                                            │
+╰────────────────────────────────────────────────────────────────────────────╯
+
+
+[10/01/25 12:36:24] INFO     Starting MCP server 'MCP Server'     server.py:1572
+                             with transport 'streamable-http' on                
+                             http://0.0.0.0:8001/mcp                            
+/workspaces/openai-api-agent-project/.venv/lib/python3.12/site-packages/websockets/legacy/__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+  warnings.warn(  # deprecated in 14.0 - 2024-11-09
+/workspaces/openai-api-agent-project/.venv/lib/python3.12/site-packages/uvicorn/protocols/websockets/websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+  from websockets.server import WebSocketServerProtocol
+INFO:     Started server process [62893]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+🔧 MCP Server: http://localhost:8001/mcp
+INFO:     127.0.0.1:35936 - "POST /mcp/ HTTP/1.1" 307 Temporary Redirect
