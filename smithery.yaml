@@ -1,0 +1,3 @@
+name: openai-api-agent-project
+runtime: python
+entrypoint: mcp_server.py
