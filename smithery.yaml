@@ -1,20 +1,20 @@
-runtime: "python"
-# build:
-#   dockerfile: "Dockerfile.smithery"
-#   dockerBuildPath: "."
+runtime: "container"
+build:
+  dockerfile: "Dockerfile.smithery"
+  dockerBuildPath: "."
 startCommand:
   type: "http"
-  commandFunction: |
-    (config) => ({
-      command: 'uv',
-      args: ['run', 'mcp_server.py'],
-      env: {
-        PORT: '8001',
-        GOOGLE_CLIENT_ID: config.clientId || '',
-        GOOGLE_CLIENT_SECRET: config.clientSecret || '',
-        GOOGLE_REFRESH_TOKEN: config.refreshToken || ''
-      }
-    })
+  # commandFunction: |
+  #   (config) => ({
+  #     command: 'uv',
+  #     args: ['run', 'mcp_server.py'],
+  #     env: {
+  #       PORT: '8001',
+  #       GOOGLE_CLIENT_ID: config.clientId || '',
+  #       GOOGLE_CLIENT_SECRET: config.clientSecret || '',
+  #       GOOGLE_REFRESH_TOKEN: config.refreshToken || ''
+  #     }
+  #   })
   # configSchema:
   #   type: object
   #   properties:
