@@ -1,3 +1,6 @@
-name: openai-api-agent-project
-runtime: python
-entrypoint: mcp_server.py
+runtime: "container"
+build:
+  dockerfile: "Dockerfile.smithery"
+  dockerBuildPath: "."
+startCommand:
+  type: "http"
