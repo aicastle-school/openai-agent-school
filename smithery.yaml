@@ -1,7 +1,7 @@
 runtime: "container"
 
 build:
-  dockerfile: "Dockerfile.smithery"
+  dockerfile: "Dockerfile"
   dockerBuildPath: "."
 
 startCommand:

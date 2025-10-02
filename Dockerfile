@@ -13,4 +13,4 @@ ENV PATH="/root/.local/bin:$PATH"
 
 RUN uv sync --frozen
 
-CMD ["uv", "run", "mcp_server.py"]
+CMD ["uv", "run", "main.py"]
