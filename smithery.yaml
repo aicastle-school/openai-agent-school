@@ -1,38 +1,38 @@
 runtime: "container"
 
 build:
-  dockerfile: "smithery.Dockerfile"
+  dockerfile: "Dockerfile"
   dockerBuildPath: "."
 
 startCommand:
   type: "http"
-  # commandFunction: |
-  #   (config) => ({
-  #     command: 'uv',
-  #     args: ['run', 'mcp_server.py'],
-  #     env: {
-  #       PORT: '8001',
-  #       GOOGLE_CLIENT_ID: config.clientId || '',
-  #       GOOGLE_CLIENT_SECRET: config.clientSecret || '',
-  #       GOOGLE_REFRESH_TOKEN: config.refreshToken || ''
-  #     }
-  #   })
-  # configSchema:
-  #   type: object
-  #   properties:
-  #     clientId:
-  #       type: string
-  #       title: "CLIENT_ID"
-  #       description: "Google Client ID"
-  #     clientSecret:
-  #       type: string
-  #       title: "CLIENT_SECRET"
-  #       description: "Google Client Secret"
-  #     refreshToken:
-  #       type: string
-  #       title: "REFRESH_TOKEN"
-  #       description: "Google Refresh Token"
-  #   required:
-  #     - clientId
-  #     - clientSecret
-  #     - refreshToken
+  commandFunction: |
+    (config) => ({
+      command: 'uv',
+      args: ['run', 'mcp_server.py'],
+      env: {
+        PORT: '8001',
+        GOOGLE_CLIENT_ID: config.clientId || '',
+        GOOGLE_CLIENT_SECRET: config.clientSecret || '',
+        GOOGLE_REFRESH_TOKEN: config.refreshToken || ''
+      }
+    })
+  configSchema:
+    type: object
+    properties:
+      clientId:
+        type: string
+        title: "CLIENT_ID"
+        description: "Google Client ID"
+      clientSecret:
+        type: string
+        title: "CLIENT_SECRET"
+        description: "Google Client Secret"
+      refreshToken:
+        type: string
+        title: "REFRESH_TOKEN"
+        description: "Google Refresh Token"
+    required:
+      - clientId
+      - clientSecret
+      - refreshToken
