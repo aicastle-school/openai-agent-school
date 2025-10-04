@@ -16,11 +16,12 @@
             "workbench.editorAssociations": {
                 "*.md": "vscode.markdown.preview.editor"
             },
-            // "python-envs.defaultEnvManager": "ms-python.python:venv",
-            // "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+            "python-envs.defaultEnvManager": "ms-python.python:venv",
+            "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
             "code-runner.executorMap": {
                 "python": "uv run python"
-            }
+            },
+            "code-runner.runInTerminal": true
         }
     }
 }
