@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 import os, yaml, json, glob
 from datetime import datetime
+import pytz
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(script_dir, 'data')
 output_dir = os.path.join(script_dir, 'output')
 os.makedirs(output_dir, exist_ok=True)
 
-# 현재 날짜를 YYYY-MM-DD 형식으로 생성
-current_date = datetime.now().strftime('%Y-%m-%d')
-output_file = os.path.join(output_dir, f'data-preference-{current_date}.jsonl')
+# 현재 날짜를 YYMMDD-HHMMSS 형식으로 생성 (한국시간)
+kst = pytz.timezone('Asia/Seoul')
+current_date = datetime.now(kst).strftime('%y%m%d-%H%M%S')
+output_file = os.path.join(output_dir, f'data-dpo-{current_date}.jsonl')
 
 ################ convert yaml to jsonl ###############
 

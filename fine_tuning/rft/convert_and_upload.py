@@ -1,15 +1,30 @@
 #!/usr/bin/env python3
 import os, yaml, json, glob
 from datetime import datetime
+import pytz
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(script_dir, 'data')
 output_dir = os.path.join(script_dir, 'output')
 os.makedirs(output_dir, exist_ok=True)
 
-# 현재 날짜를 YYYY-MM-DD 형식으로 생성
-current_date = datetime.now().strftime('%Y-%m-%d')
-output_file = os.path.join(output_dir, f'data-reinforcement-{current_date}.jsonl')
+# 현재 날짜를 YYMMDD-HHMMSS 형식으로 생성 (한국시간)
+kst = pytz.timezone('Asia/Seoul')
+current_date = datetime.now(kst).strftime('%y%m%d-%H%M%S')
+output_file = os.path.join(output_dir, f'data-rft-{current_date}.jsonl')
+
+################ convert grader.yaml to grader.json ###############
+
+grader_yaml_file = os.path.join(script_dir, f'grader.yaml')
+grader_json_file = os.path.join(output_dir, f'grader-{current_date}.json')
+
+with open(grader_yaml_file, 'r', encoding='utf-8') as f:
+    grader_data = yaml.safe_load(f)
+
+with open(grader_json_file, 'w', encoding='utf-8') as f:
+    json.dump(grader_data, f, ensure_ascii=False, indent=2)
+
+print(f"[INFO] grader 변환 완료: {grader_json_file}")
 
 ################ convert yaml to jsonl ###############
 
@@ -49,15 +64,3 @@ if upload_confirm.lower() in ['y', 'yes']:
 else:
     print("[INFO] 파일 업로드를 건너뛰었습니다.")
 
-################ convert grader.yaml to grader.json ###############
-
-grader_yaml_file = os.path.join(script_dir, 'grader.yaml')
-grader_json_file = os.path.join(output_dir, f'grader-reinforcement-{current_date}.json')
-
-with open(grader_yaml_file, 'r', encoding='utf-8') as f:
-    grader_data = yaml.safe_load(f)
-
-with open(grader_json_file, 'w', encoding='utf-8') as f:
-    json.dump(grader_data, f, ensure_ascii=False, indent=2)
-
-print(f"[INFO] grader 변환 완료: {grader_json_file}")

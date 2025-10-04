@@ -15,7 +15,7 @@
             "workbench.editorAssociations": {
                 "*.md": "vscode.markdown.preview.editor"
             },
-            "python.defaultInterpreterPath": "/workspace/openai-api-agent-project/.venv/bin/python"
+            "python.defaultInterpreterPath": "/workspaces/openai-api-agent-project/.venv/bin/python"
         }
     }
 }

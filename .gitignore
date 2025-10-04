@@ -2,12 +2,14 @@
 __pycache__/
 
 .env
+!.devcontainer/example/.env
+
 api_params.jsonc
+!.devcontainer/example/api_params.jsonc
 
 test*
-data.jsonl
-grader.json
+fine_tuning/dpo/output/
+fine_tuning/rft/output/
+fine_tuning/sft/output/
 
 
-!.devcontainer/example/.env
-!.devcontainer/example/api_params.jsonc
