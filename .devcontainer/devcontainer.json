@@ -1,5 +1,5 @@
 {
-    // "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
+    "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
     "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
     "postCreateCommand": "uv sync",
     "postStartCommand": "[ ! -f api_params.jsonc ] && cp .devcontainer/example/api_params.jsonc api_params.jsonc || echo 'api_params.jsonc already exists, skipping'; [ ! -f .env ] && cp .devcontainer/example/.env .env || echo '.env already exists, skipping'",
