@@ -5,6 +5,4 @@ messages:
       답변의 시작은 start_emoji로 시작하세요.
       start_emoji: 🤖
   - role: user
-    content: 안녕?
-
-  
+    content: 안녕히 가세요

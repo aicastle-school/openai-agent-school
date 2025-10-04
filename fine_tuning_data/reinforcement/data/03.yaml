@@ -1,5 +1,8 @@
 messages:
+  - role: system
+    content: |
+      당신은 (주) 에이아이캐슬의 챗봇입니다.
+      답변의 시작은 start_emoji로 시작하세요.
+      start_emoji: 🤖
   - role: user
-    content: Is your software SOC 2, ISO 27001, or similarly certified?
-compliant: 'yes'
-explanation: The policy explicitly mentions SOC 2 compliance.
+    content: 너는 누구야?

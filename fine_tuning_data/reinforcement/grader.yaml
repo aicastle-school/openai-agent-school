@@ -1,108 +1,64 @@
 type: multi
 graders:
-  explanation:
-    name: Explanation text grader
+  compliant:
+    name: 규정 준수
     type: score_model
+    model: gpt-4o-2024-08-06
     input:
     - role: user
       type: message
       content: |
-        # Overview
+        # 개요
+        에이아이캐슬 챗봇 예시 답변을 기반으로 모델이 생성한 답변의 규정 준수를 평가합니다.  
+        아래 채점 기준을 사용하여 항상 0부터 1까지의 단일 부동소수점 숫자로 응답하세요.
 
-        Evaluate the accuracy of the model-generated answer based on the 
-        Copernicus Product Security Policy and an example answer. The response 
-        should align with the policy, cover key details, and avoid speculative 
-        or fabricated claims.
+        ## 채점 기준:
+        - 1.0: 모델 답변이 정책과 완전히 일치함.
+        - 0.5: 모델 답변이 정책과 부분적으로 일치함.
+        - 0.0: 모델 답변이 정책과 완전히 불일치함.
 
-        Always respond with a single floating point number 0 through 1,
-        using the grading criteria below.
+        ## 에이아이캐슬 챗봇의 규정 준수 정책
+        1. 유저에게 반말을 사용하지 않습니다.
+        2. 답변의 시작은 start_emoji로 시작합니다.
 
-        ## Grading Criteria:
-        - **1.0**: The model answer is fully aligned with the policy and factually correct.
-        - **0.75**: The model answer is mostly correct but has minor omissions or slight rewording that does not change meaning.
-        - **0.5**: The model answer is partially correct but lacks key details or contains speculative statements.
-        - **0.25**: The model answer is significantly inaccurate or missing important information.
-        - **0.0**: The model answer is completely incorrect, hallucinates policy details, or is irrelevant.
+        ## 예시
 
-        ## Copernicus Product Security Policy
+        ### 예시 1
+        - user: 안녕?
+        - assistant: 🤖 안녕하세요! 무엇을 도와드릴까요?  
+        
+        - score: 1.0
 
-        ### Introduction
-        Protecting customer data is a top priority for Copernicus. Our platform is designed with industry-standard security and compliance measures to ensure data integrity, privacy, and reliability.
+        ### 예시 2
+        - user: 오늘 날씨 어때?
+        - assistant: 🤖 안녕! 오늘 날씨는 맑고 화창해.
+        
+        - score: 0.5
 
-        ### Data Classification
-        Copernicus safeguards customer data, which includes prompts, responses, file uploads, user preferences, and authentication configurations. Metadata, such as user IDs, organization IDs, IP addresses, and device details, is collected for security purposes and stored securely for monitoring and analytics.
+        ### 예시 3
+        - user: 너 누구야?
+        - assistant: 야, 나는 너의 챗봇이야!
 
-        ### Data Management
-        Copernicus utilizes cloud-based storage with strong encryption (AES-256) and strict access controls. Data is logically segregated to ensure confidentiality and access is restricted to authorized personnel only. Conversations and other customer data are never used for model training.
+        - score: 0.0
 
-        ### Data Retention
-        Customer data is retained only for providing core functionalities like conversation history and team collaboration. Customers can configure data retention periods, and deleted content is removed from our system within 30 days.
+        ## 다음을 채점하세요
+        - user: {{item.messages[-1].content}}
+        - 모델 답변: {{sample.output_text}}
 
-        ### User Authentication & Access Control
-        Users authenticate via Single Sign-On (SSO) using an Identity Provider (IdP). Roles include Account Owner, Admin, and Standard Member, each with defined permissions. User provisioning can be automated through SCIM integration.
+        - score:
 
-        ### Compliance & Security Monitoring
-        - **Compliance API**: Logs interactions, enabling data export and deletion.
-        - **Audit Logging**: Ensures transparency for security audits.
-        - **HIPAA Support**: Business Associate Agreements (BAAs) available for customers needing healthcare compliance.
-        - **Security Monitoring**: 24/7 monitoring for threats and suspicious activity.
-        - **Incident Response**: A dedicated security team follows strict protocols for handling incidents.
+  response_length:
+    type: python
+    name: 응답 길이 평가자
+    image_tag: "2025-05-08"
+    source: |
+      def grade(sample: dict, item: dict) -> float:
+          """
+          응답 길이가 유저의 마지막 질문보다 긴 경우 1.0을 반환하고, 그렇지 않으면 0.0을 반환합니다.
+          """
+          input_text = item.get("messages")[-1].get("content")
+          output_text = sample.get("output_text")
 
-        ### Infrastructure Security
-        - **Access Controls**: Role-based authentication with multi-factor security.
-        - **Source Code Security**: Controlled code access with mandatory reviews before deployment.
-        - **Network Security**: Web application firewalls and strict ingress/egress controls to prevent unauthorized access.
-        - **Physical Security**: Data centers have controlled access, surveillance, and environmental risk management.
+          return 1.0 if len(output_text) > len(input_text) else 0.0
 
-        ### Bug Bounty Program
-        Security researchers are encouraged to report vulnerabilities through our Bug Bounty Program for responsible disclosure and rewards.
-
-        ### Compliance & Certifications
-        Copernicus maintains compliance with industry standards, including SOC 2 and GDPR. Customers can access security reports and documentation via our Security Portal.
-
-        ### Conclusion
-        Copernicus prioritizes security, privacy, and compliance. For inquiries, contact your account representative or visit our Security Portal.
-
-        ## Examples
-
-        ### Example 1: GDPR Compliance
-        **Reference Answer**: 'Copernicus maintains compliance with industry standards, including SOC 2 and GDPR. Customers can access security reports and documentation via our Security Portal.'
-
-        **Model Answer 1**: 'Yes, Copernicus is GDPR compliant and provides compliance documentation via the Security Portal.' 
-        **Score: 1.0** (fully correct)
-
-        **Model Answer 2**: 'Yes, Copernicus follows GDPR standards.'
-        **Score: 0.75** (mostly correct but lacks detail about compliance reports)
-
-        **Model Answer 3**: 'Copernicus may comply with GDPR but does not provide documentation.'
-        **Score: 0.5** (partially correct, speculative about compliance reports)
-
-        **Model Answer 4**: 'Copernicus does not follow GDPR standards.'
-        **Score: 0.0** (factually incorrect)
-
-        ### Example 2: Encryption in Transit
-        **Reference Answer**: 'The Copernicus Product Security Policy states that data is stored with strong encryption (AES-256) and that network security measures include web application firewalls and strict ingress/egress controls. However, the policy does not explicitly mention encryption of data in transit (e.g., TLS encryption). A review is needed to confirm whether data transmission is encrypted.'
-
-        **Model Answer 1**: 'Data is encrypted at rest using AES-256, but a review is needed to confirm encryption in transit.'
-        **Score: 1.0** (fully correct)
-
-        **Model Answer 2**: 'Yes, Copernicus encrypts data in transit and at rest.'
-        **Score: 0.5** (partially correct, assumes transit encryption without confirmation)
-
-        **Model Answer 3**: 'All data is protected with encryption.'
-        **Score: 0.25** (vague and lacks clarity on encryption specifics)
-
-        **Model Answer 4**: 'Data is not encrypted in transit.'
-        **Score: 0.0** (factually incorrect)
-
-        Reference Answer: {{item.explanation}}
-        Model Answer: {{sample.output_json.explanation}}
-
-    model: gpt-4o-2024-08-06
-  compliant:
-    name: compliant
-    type: string_check
-    reference: "{{item.compliant}}"
-    operation: eq
-    input: "{{sample.output_json.compliant}}"
-calculate_output: 0.5 * compliant + 0.5 * explanation
+calculate_output: "0.8 * compliant + 0.2 * response_length"

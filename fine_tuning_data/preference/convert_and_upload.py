@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 import os, yaml, json, glob
+from datetime import datetime
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(script_dir, 'data')
-output_file = os.path.join(script_dir, 'data.jsonl')
+output_dir = os.path.join(script_dir, 'output')
+os.makedirs(output_dir, exist_ok=True)
+
+# 현재 날짜를 YYYY-MM-DD 형식으로 생성
+current_date = datetime.now().strftime('%Y-%m-%d')
+output_file = os.path.join(output_dir, f'data-preference-{current_date}.jsonl')
 
 ################ convert yaml to jsonl ###############
 
@@ -26,14 +32,19 @@ with open(output_file, 'w', encoding='utf-8') as jsonl_file:
 print(f"[INFO] 파일 생성 완료: {output_file}")
 
 ############## upload data ###############
-from dotenv import load_dotenv
-load_dotenv()
+upload_confirm = input(f"OpenAI에 파일을 업로드하시겠습니까? ({output_file}) [y/N]: ")
 
-from openai import OpenAI
-client = OpenAI()
+if upload_confirm.lower() in ['y', 'yes']:
+    from dotenv import load_dotenv
+    load_dotenv()
 
-response = client.files.create(
-    file=open(output_file, "rb"),
-    purpose="fine-tune",
-)
-print("[INFO] 파일 업로드 완료: ", response.id)
+    from openai import OpenAI
+    client = OpenAI()
+
+    response = client.files.create(
+        file=open(output_file, "rb"),
+        purpose="fine-tune",
+    )
+    print("[INFO] 파일 업로드 완료: ", response.id)
+else:
+    print("[INFO] 파일 업로드를 건너뛰었습니다.")

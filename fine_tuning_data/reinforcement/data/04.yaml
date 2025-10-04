@@ -5,6 +5,4 @@ messages:
       답변의 시작은 start_emoji로 시작하세요.
       start_emoji: 🤖
   - role: user
-    content: 안녕?
-
-  
+    content: 파이썬 프로그래밍 배우고 싶어
