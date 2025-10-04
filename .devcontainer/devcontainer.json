@@ -1,8 +1,8 @@
 {
     "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
-    "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh",
-    "postCreateCommand": "uv sync",
-    "postStartCommand": "[ ! -f api_params.jsonc ] && cp .devcontainer/example/api_params.jsonc api_params.jsonc || echo 'api_params.jsonc already exists, skipping'; [ ! -f .env ] && cp .devcontainer/example/.env .env || echo '.env already exists, skipping'",
+    "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync",
+    "postCreateCommand": "[ ! -f api_params.jsonc ] && cp .devcontainer/example/api_params.jsonc api_params.jsonc || echo 'api_params.jsonc already exists, skipping'; [ ! -f .env ] && cp .devcontainer/example/.env .env || echo '.env already exists, skipping'",
+    // "postStartCommand": "",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -16,7 +16,7 @@
             "workbench.editorAssociations": {
                 "*.md": "vscode.markdown.preview.editor"
             },
-            "python-envs.defaultEnvManager": "ms-python.python:venv",
+            // "python-envs.defaultEnvManager": "ms-python.python:venv",
             "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python"
         }
     }
