@@ -3,11 +3,11 @@
   // "prompt": {
   //   "variables": {
   //     "user_name": "aicastle",
-  //     "pdf_file": {
+  //     "user_file": {
   //       "type": "input_file",
   //       "file_id": "file-............"
   //     },
-  //     "image_file": {
+  //     "user_image": {
   //       "type": "input_image",
   //       "file_id": "file-............"
   //     }
