@@ -1,6 +1,6 @@
 runtime: "container"
 build:
-  dockerfile: "Dockerfile"
+  dockerfile: "smithery.Dockerfile"
   dockerBuildPath: "."
 startCommand:
   type: "http"
