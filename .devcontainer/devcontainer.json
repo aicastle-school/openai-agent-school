@@ -7,8 +7,7 @@
         "vscode": {
             "extensions": [
                 "GitHub.copilot",
-                "ms-python.python",
-                "formulahendry.code-runner"
+                "ms-python.python"
             ]
         },
         "settings": {
@@ -17,7 +16,7 @@
                 "*.md": "vscode.markdown.preview.editor"
             },
             // "python-envs.defaultEnvManager": "ms-python.python:venv",
-            "python.defaultInterpreterPath": "/workspaces/openai-api-agent-project/.venv/bin/python"
+            // "python.defaultInterpreterPath": "/workspaces/openai-api-agent-project/.venv/bin/python"
         }
     }
 }
