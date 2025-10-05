@@ -15,6 +15,7 @@
             "workbench.editorAssociations": {
                 "*.md": "vscode.markdown.preview.editor"
             },
+            "python-envs.defaultEnvManager": "ms-python.python:venv",
             "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
             "python.terminal.activateEnvironment": true,
             "python.terminal.activateEnvInCurrentTerminal": true
