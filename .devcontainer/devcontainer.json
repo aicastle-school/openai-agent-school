@@ -14,7 +14,7 @@
             "markdown.preview.doubleClickToSwitchToEditor": false,
             "workbench.editorAssociations": {
                 "*.md": "vscode.markdown.preview.editor"
-            },
+            }
             // "python-envs.defaultEnvManager": "ms-python.python:venv",
             // "python.defaultInterpreterPath": "/workspaces/openai-api-agent-project/.venv/bin/python"
         }
