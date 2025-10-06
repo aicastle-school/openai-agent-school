@@ -10,9 +10,6 @@ import httpx
 from dotenv import load_dotenv
 from mcp_server import mcp
 
-# 환경변수 로드
-load_dotenv()
-
 # app 생성
 mcp_app = mcp.http_app(path="/")
 app = FastAPI(lifespan=mcp_app.lifespan)
@@ -24,42 +21,65 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"]) # CORS - 모든 출처 �
 app.mount("/static", StaticFiles(directory="assets/static"), name="static") # Static 파일 서빙 설정
 templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
 
-# OpenAI 클라이언트 생성
-client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
+# openai client 생성 함수
+client = None
+OPENAI_API_KEY = None
+def get_openai_client():
+    global client, OPENAI_API_KEY
+    load_dotenv(override=True)
+    current_api_key = os.environ.get("OPENAI_API_KEY")
+    
+    # API 키가 변경되었거나 처음 실행인 경우
+    if OPENAI_API_KEY != current_api_key:
+        OPENAI_API_KEY = current_api_key
+        if OPENAI_API_KEY:
+            client = OpenAI()
+        else:
+            client = None
+    return client
 
-# API 파라미터 설정
-if PROMPT_ID := os.environ.get("PROMPT_ID"):
-    api_params = {"prompt": {"id": PROMPT_ID}}
-else:
-    api_params = {"model": "gpt-5"}
+# API 파라미터 생성 함수
+def get_api_params():
+    load_dotenv(override=True)
 
-# code.json : tools 및 prompt variables 업데이트
-for path in ['code.json', '/etc/secrets/code.json']:
-    if os.path.exists(path):
-        try:
-            with open(path, 'r', encoding='utf-8') as file:
-                code_data = json.load(file)
-            # tools 업데이트
-            if code_data.get("tools"):
-                api_params["tools"] = code_data["tools"]
-            # prompt variables 업데이트
-            if PROMPT_ID and code_data.get("prompt", {}).get("variables"):
-                api_params['prompt']["variables"] = code_data["prompt"]["variables"]
-            break
-        except Exception as e:
-            continue
+    if PROMPT_ID := os.environ.get("PROMPT_ID"):
+        api_params = {"prompt": {"id": PROMPT_ID}}
+    else:
+        api_params = {"model": "gpt-5"}
+
+    # code.json : tools 및 prompt variables 업데이트
+    for path in ['code.json', '/etc/secrets/code.json']:
+        if os.path.exists(path):
+            try:
+                with open(path, 'r', encoding='utf-8') as file:
+                    code_data = json.load(file)
+                # tools 업데이트
+                if code_data.get("tools"):
+                    api_params["tools"] = code_data["tools"]
+                # prompt variables 업데이트
+                if PROMPT_ID and code_data.get("prompt", {}).get("variables"):
+                    api_params['prompt']["variables"] = code_data["prompt"]["variables"]
+                break
+            except Exception as e:
+                continue
+    return api_params
+
+# TITLE 가져오는 함수
+def get_title():
+    load_dotenv(override=True)
+    return os.environ.get("TITLE", "OpenAI API Agent School").strip()
 
 # 메인 페이지 (Agent 앱)
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
     return templates.TemplateResponse(request, "index.html", {
-        "title": title
+        "title": get_title()
     })
 
 # 채팅 API
 @app.post("/api")
 async def chat_api(request: Request):
+    client = get_openai_client()
     if client is None:
         raise HTTPException(status_code=500, detail="OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.")
     
@@ -70,6 +90,7 @@ async def chat_api(request: Request):
     async def generate():
         nonlocal previous_response_id
         try:
+            api_params = get_api_params()
             response = client.responses.create(
                 **api_params,
                 input=input_message,
@@ -130,6 +151,7 @@ async def chat_api(request: Request):
                 # 함수 호출 결과가 있으면 다시 API 호출
                 if follow_up_input:
                     print(f"Making follow-up API call with {len(follow_up_input)}")
+                    api_params = get_api_params()
                     response = client.responses.create(
                         **api_params,
                         input=follow_up_input,
@@ -151,6 +173,7 @@ async def chat_api(request: Request):
 # 파일 프록시 엔드포인트 - sandbox 파일을 다운로드할 수 있게 해줌
 @app.get("/files/{container_id}/{file_id}")
 async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = None):
+    client = get_openai_client()
     if not client:
         raise HTTPException(status_code=500, detail="OpenAI API key is not configured")
     
