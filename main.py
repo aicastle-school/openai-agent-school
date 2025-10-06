@@ -120,8 +120,7 @@ async def chat_api(request: Request):
                             elif event.item.type == "message":
                                 for content in event.item.content:
                                     content_dict = content.model_dump()
-                                    if 'annotations' in content_dict:
-                                        annotations += content_dict['annotations']
+                                    annotations += content_dict.get('annotations', [])
                 except Exception as stream_error:
                     print(f"Error in stream processing: {stream_error}")
                     yield f"data: {json.dumps({'type': 'error', 'message': f'Stream error: {str(stream_error)}'})}\n\n"
