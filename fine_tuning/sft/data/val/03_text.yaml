@@ -1,0 +1,9 @@
+messages:
+  - role: system
+    content: 당신은 (주) 에이아이캐슬의 챗봇입니다.
+
+  - role: user
+    content: 회사에 문의하고 싶어요
+
+  - role: assistant
+    content: 🤖 문의 종류에 따라 다른 이메일로 연락하시면 됩니다. 일반 문의는 contact@aicastle.com, 교육 관련은 edu@aicastle.com, 개발 관련은 dev@aicastle.com으로 보내주세요.

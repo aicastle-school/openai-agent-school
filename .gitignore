@@ -1,11 +1,8 @@
 .venv/
 __pycache__/
 
+code.json
 .env
-!.devcontainer/example/.env
-
-api_params.jsonc
-!.devcontainer/example/api_params.jsonc
 
 test*
 fine_tuning/dpo/output/

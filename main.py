@@ -9,7 +9,6 @@ import uvicorn
 import httpx
 from dotenv import load_dotenv
 from mcp_server import mcp
-from api_params import get_api_params
 
 # 환경변수 로드
 load_dotenv()
@@ -29,10 +28,28 @@ templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
 client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
 
 # API 파라미터 설정
-api_params = get_api_params()
+if PROMPT_ID := os.environ.get("PROMPT_ID"):
+    api_params = {"prompt": {"id": PROMPT_ID}}
+else:
+    api_params = {"model": "gpt-5"}
 
+# code.json : tools 및 prompt variables 업데이트
+for path in ['code.json', '/etc/secrets/code.json']:
+    if os.path.exists(path):
+        try:
+            with open(path, 'r', encoding='utf-8') as file:
+                code_data = json.load(file)
+            # tools 업데이트
+            if code_data.get("tools"):
+                api_params["tools"] = code_data["tools"]
+            # prompt variables 업데이트
+            if PROMPT_ID and code_data.get("prompt", {}).get("variables"):
+                api_params['prompt']["variables"] = code_data["prompt"]["variables"]
+            break
+        except Exception as e:
+            continue
 
-# 메인 페이지
+# 메인 페이지 (Agent 앱)
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
@@ -53,13 +70,12 @@ async def chat_api(request: Request):
     async def generate():
         nonlocal previous_response_id
         try:
-            request_params = api_params.copy()
-            request_params.update({
-                'input': input_message,
-                'previous_response_id': previous_response_id,
-                'stream': True
-            })
-            response = client.responses.create(**request_params)
+            response = client.responses.create(
+                **api_params,
+                input=input_message,
+                previous_response_id=previous_response_id,
+                stream=True
+            )
 
             max_repeats = 5
             for _ in range(max_repeats):
@@ -115,13 +131,12 @@ async def chat_api(request: Request):
                 # 함수 호출 결과가 있으면 다시 API 호출
                 if follow_up_input:
                     print(f"Making follow-up API call with {len(follow_up_input)}")
-                    request_params = api_params.copy()
-                    request_params.update({
-                        'input': follow_up_input,
-                        'previous_response_id': previous_response_id,
-                        'stream': True
-                    })
-                    response = client.responses.create(**request_params)
+                    response = client.responses.create(
+                        **api_params,
+                        input=follow_up_input,
+                        previous_response_id=previous_response_id,
+                        stream=True
+                    )
                 else:
                     break
 
