@@ -1,12 +1,12 @@
 .venv/
 __pycache__/
 
-code.json
 .env
 
 test*
-fine_tuning/dpo/output/
-fine_tuning/rft/output/
-fine_tuning/sft/output/
+
+dpo/output/
+rft/output/
+sft/output/
 
 
