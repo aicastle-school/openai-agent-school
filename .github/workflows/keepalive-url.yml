@@ -1,4 +1,4 @@
-# 이 워크플로우는 10분마다 지정된 URL을 호출하여 서비스를 활성 상태로 유지합니다.
+# 이 워크플로우는 10분마다 지정된 URL들을 호출하여 서비스를 활성 상태로 유지합니다.
 
 on:
   schedule:
@@ -9,6 +9,18 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     env:
-      KEEPALIVE_URL: ${{ secrets.KEEPALIVE_URL }}
+      # 쉼표로 구분된 URL 목록 (예: "https://example1.com,https://example2.com")
+      KEEPALIVE_URLS: ${{ secrets.KEEPALIVE_URLS }}
     steps:
-      - run: curl -fsS --max-time 10 "$KEEPALIVE_URL" || true
+      - name: Ping multiple URLs
+        run: |
+          if [ -n "$KEEPALIVE_URLS" ]; then
+            IFS=',' read -ra URLS <<< "$KEEPALIVE_URLS"
+            for url in "${URLS[@]}"; do
+              url=$(echo "$url" | xargs)
+              echo "Pinging: $url"
+              curl -fsS --max-time 10 "$url" || echo "Failed to ping $url"
+            done
+          else
+            echo "No URLs configured"
+          fi
