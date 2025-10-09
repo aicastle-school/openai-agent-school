@@ -19,7 +19,7 @@ def get_stock_price(symbol: str) -> Dict[str, Any]:
         currency = getattr(info, "currency", None)
 
         if price is None:
-            hist = ticker.history(period="1d")
+            hist = ticker.history(period="1d") 
             if hist.empty:
                 return {"ok": False, "symbol": symbol, "error": "거래 데이터 없음"}
             price = float(hist["Close"].iloc[-1])

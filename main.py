@@ -22,20 +22,16 @@ app.mount("/static", StaticFiles(directory="assets/static"), name="static") # St
 templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
 
 # openai client 생성 함수
-client = None
-OPENAI_API_KEY = None
 def get_openai_client():
     global client, OPENAI_API_KEY
+    client = client if 'client' in globals() else None
+    OPENAI_API_KEY = OPENAI_API_KEY if 'OPENAI_API_KEY' in globals() else None
+
     load_dotenv(override=True)
     current_api_key = os.environ.get("OPENAI_API_KEY")
-    
-    # API 키가 변경되었거나 처음 실행인 경우
     if OPENAI_API_KEY != current_api_key:
         OPENAI_API_KEY = current_api_key
-        if OPENAI_API_KEY:
-            client = OpenAI()
-        else:
-            client = None
+        client = OpenAI() if OPENAI_API_KEY else None
     return client
 
 # API 파라미터 생성 함수
@@ -46,28 +42,56 @@ def get_api_params():
         api_params = {"prompt": {"id": PROMPT_ID}}
     else:
         api_params = {"model": "gpt-5"}
-
-    # code.json : tools 및 prompt variables 업데이트
-    for path in ['code.json', '/etc/secrets/code.json']:
-        if os.path.exists(path):
+    
+    for target_folder in ['./', '/etc/secrets/']:
+        # tools.json
+        if path := os.path.join(target_folder, "tools.json"):
             try:
                 with open(path, 'r', encoding='utf-8') as file:
-                    code_data = json.load(file)
-                # tools 업데이트
-                if code_data.get("tools"):
-                    api_params["tools"] = code_data["tools"]
-                # prompt variables 업데이트
-                if PROMPT_ID and code_data.get("prompt", {}).get("variables"):
-                    api_params['prompt']["variables"] = code_data["prompt"]["variables"]
+                    api_tools = json.load(file)
+                    api_params["tools"] = api_tools
                 break
             except Exception as e:
                 continue
+        
+        # variables.json
+        if path := os.path.join(target_folder, "variables.json"):
+            try:
+                with open(path, 'r', encoding='utf-8') as file:
+                    api_variables = json.load(file)
+                    if PROMPT_ID:
+                        api_params['prompt']["variables"] = api_variables
+                break
+            except Exception as e:
+                continue
+
     return api_params
 
 # TITLE 가져오는 함수
 def get_title():
     load_dotenv(override=True)
     return os.environ.get("TITLE", "OpenAI API Agent School").strip()
+
+# functions 모듈 동적 import 함수
+def import_functions():
+    import importlib.util
+    
+    # 1. /etc/secrets/functions.py 시도
+    secrets_path = "/etc/secrets/functions.py"
+    if os.path.exists(secrets_path):
+        spec = importlib.util.spec_from_file_location("functions", secrets_path)
+        functions = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(functions)
+        return functions
+    
+    # 2. ./functions.py 시도 
+    elif os.path.exists("./functions.py"):
+        import functions
+        return functions
+    
+    # 3. 둘 다 없으면 에러
+    else:
+        raise ImportError("functions.py not found")
 
 # 메인 페이지 (Agent 앱)
 @app.get("/", response_class=HTMLResponse)
@@ -120,8 +144,9 @@ async def chat_api(request: Request):
                         elif event.type == "response.output_item.done":
                             if event.item.type == "function_call":
                                 try:
-                                    import tools
-                                    func = getattr(tools, event.item.name)
+                                    # functions 모듈 동적 import (우선순위: /etc/secrets > ./)
+                                    functions = import_functions()
+                                    func = getattr(functions, event.item.name)
                                     args = json.loads(event.item.arguments)
                                     func_output = str(func(**args))
                                 except Exception as e:
