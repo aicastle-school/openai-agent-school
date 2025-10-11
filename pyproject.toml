@@ -1,10 +1,13 @@
 [project]
-name = "openai-api-agent-project"
+name = "openai-agent"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "openai",
     "fastapi[standard]",
-    "python-dotenv",
+    "fastmcp",
     "yfinance",
+    "python-dotenv",
+    "pyyaml",
+    "pytz",
 ]
