@@ -7,76 +7,21 @@ import os, json
 from openai import OpenAI
 import uvicorn
 import httpx
+from utils import get_openai_client, get_api_params, get_title
 from dotenv import load_dotenv
-from mcp_server import mcp
 
 # app 생성
-mcp_app = mcp.http_app(path="/")
-app = FastAPI(lifespan=mcp_app.lifespan)
-app.mount("/mcp", mcp_app)
-# app = FastAPI()
+app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"])
+app.mount("/static", StaticFiles(directory="assets/static"), name="static")
+templates = Jinja2Templates(directory="assets/templates")
 
-# app 설정
-app.add_middleware(CORSMiddleware, allow_origins=["*"]) # CORS - 모든 출처 허용
-app.mount("/static", StaticFiles(directory="assets/static"), name="static") # Static 파일 서빙 설정
-templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
-
-# openai client 생성 함수
-client = None
-OPENAI_API_KEY = None
-def get_openai_client():
-    global client, OPENAI_API_KEY
-    load_dotenv(override=True)
-    current_api_key = os.environ.get("OPENAI_API_KEY")
-    
-    # API 키가 변경되었거나 처음 실행인 경우
-    if OPENAI_API_KEY != current_api_key:
-        OPENAI_API_KEY = current_api_key
-        if OPENAI_API_KEY:
-            client = OpenAI()
-        else:
-            client = None
-    return client
-
-# API 파라미터 생성 함수
-def get_api_params():
-    load_dotenv(override=True)
-
-    if PROMPT_ID := os.environ.get("PROMPT_ID"):
-        api_params = {"prompt": {"id": PROMPT_ID}}
-    else:
-        api_params = {"model": "gpt-5"}
-
-    # code.json : tools 및 prompt variables 업데이트
-    for path in ['code.json', '/etc/secrets/code.json']:
-        if os.path.exists(path):
-            try:
-                with open(path, 'r', encoding='utf-8') as file:
-                    code_data = json.load(file)
-                # tools 업데이트
-                if code_data.get("tools"):
-                    api_params["tools"] = code_data["tools"]
-                # prompt variables 업데이트
-                if PROMPT_ID and code_data.get("prompt", {}).get("variables"):
-                    api_params['prompt']["variables"] = code_data["prompt"]["variables"]
-                break
-            except Exception as e:
-                continue
-    return api_params
-
-# TITLE 가져오는 함수
-def get_title():
-    load_dotenv(override=True)
-    return os.environ.get("TITLE", "OpenAI API Agent School").strip()
-
-# 메인 페이지 (Agent 앱)
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(request, "index.html", {
         "title": get_title()
     })
 
-# 채팅 API
 @app.post("/api")
 async def chat_api(request: Request):
     client = get_openai_client()
@@ -120,8 +65,8 @@ async def chat_api(request: Request):
                         elif event.type == "response.output_item.done":
                             if event.item.type == "function_call":
                                 try:
-                                    import tools
-                                    func = getattr(tools, event.item.name)
+                                    import functions
+                                    func = getattr(functions, event.item.name)
                                     args = json.loads(event.item.arguments)
                                     func_output = str(func(**args))
                                 except Exception as e:
@@ -219,7 +164,7 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=port,
         reload=True,
-        timeout_keep_alive=0,  # timeout 무제한
+        timeout_keep_alive=0,
         timeout_graceful_shutdown=0,
         access_log=True,
         log_level="info"
