@@ -1,5 +1,7 @@
-.venv/
 __pycache__/
+
+.venv/
+node_modules/
 
 .env
 
@@ -8,5 +10,3 @@ test*
 dpo/output/
 rft/output/
 sft/output/
-
-
