@@ -29,21 +29,17 @@ async def index(request: Request):
 @app.post("/api")
 async def chat_api(request: Request):
     client = get_openai_client()
-    if client is None:
-        raise HTTPException(status_code=500, detail="OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.")
-    
+
     data = await request.json()
     input_message = data.get("input_message", [])
     previous_response_id = data.get("previous_response_id")
 
+    prompt_variables = get_config().get("variables", {})
+    for key, value in request.query_params.items():
+        prompt_variables[key] = value
+
     async def generate():
         nonlocal previous_response_id
-
-        # config variables에 쿼리 파라미터 병합
-        prompt_variables = get_config().get("variables", {})
-        for key, value in request.query_params.items():
-            prompt_variables[key] = value
-
         try:
             response = client.responses.create(
                 prompt={
