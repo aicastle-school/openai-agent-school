@@ -28,11 +28,7 @@
 ```sh
 uv run main.py
 ```
-
-## References
-- OpenAI Docs
-    - [chatkit](https://platform.openai.com/docs/guides/chatkit)
-    - [chatkit-themes](https://platform.openai.com/docs/guides/chatkit-themes)
-- ChatKit JS
-    - [github](https://github.com/openai/chatkit-js)
-    - [docs](https://openai.github.io/chatkit-js/)
+- 포트: 환경변수 `PORT`값이 지정된 경우 이 값을 사용하며, 그렇지 않을 경우 `8000`을 사용함.
+- URL
+    - APP: <https://localhost:8000>
+    - MCP: <https://localhost:8000/mcp>
