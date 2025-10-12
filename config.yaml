@@ -1,7 +1,7 @@
 title: OpenAI Agent School
 
-variables:
-  user_name: 고양이키우고싶어
+# variables:
+#   user_name: 고양이키우고싶어
 #   user_file:
 #     type: input_file
 #     file_id: file-.....
