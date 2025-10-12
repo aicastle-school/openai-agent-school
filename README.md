@@ -2,10 +2,7 @@
 
 ## [1] Render에 배포
 
-- [**Render**](https://render.com/) 접속 후 새 Web Service 생성
-- Github Repository 선택
-    - (옵션1) 내 레포지토리 선택: Git Provider > Connect
-    - (옵션2) 공개 레포지토리 선택: `https://github.com/aicastle-school/openai-api-agent-project`
+[**Render**](https://render.com/) 접속 후 새 Web Service 생성 후 Github Repository 선택
 
 #### Config 설정
 
@@ -24,9 +21,7 @@
 - Environment Variables
     - `OPENAI_API_KEY`: OpenAI API Key
     - `PROMPT_ID`: Prompt ID (Chat에서 생성된 Prompt ID)
-- Secret Files (선택 사항)
-    - `config.yaml`
-    - `functions.py`: function call 및 mcp에서 사용할 함수
+
 
 ## [2] 코드스페이스에서 실행
 
