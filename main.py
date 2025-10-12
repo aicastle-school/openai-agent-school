@@ -19,7 +19,6 @@ mcp_app = mcp.http_app(path="/mcp")
 app = FastAPI(lifespan=mcp_app.lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
 app.mount("/static", StaticFiles(directory="assets/static"), name="static")
-app.mount("/", mcp_app)
 templates = Jinja2Templates(directory="assets/templates")
 
 @app.get("/", response_class=HTMLResponse)
@@ -155,8 +154,10 @@ async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = No
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error proxying file: {str(e)}")
 
+app.mount("/", mcp_app)
+
 ##################################################################
-####################### Server Startup ##########################
+####################### Server Startup ###########################
 ##################################################################
 
 if __name__ == "__main__":
