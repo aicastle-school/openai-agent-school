@@ -395,8 +395,13 @@ async function sendMessage() {
             content: inputContent
         }];
 
+        // 현재 URL의 쿼리 파라미터 가져오기
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryString = urlParams.toString();
+        
         // API 호출 (스트리밍만 사용)
-        const response = await fetch('/api', {
+        const apiUrl = queryString ? `/api?${queryString}` : '/api';
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -4,9 +4,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastmcp import FastMCP
-import os, sys, inspect, json, uvicorn, httpx
-from utils import get_openai_client, get_api_params, get_title
-sys.path.insert(0, "/etc/secrets")
+import os, inspect, json, uvicorn, httpx
+from utils import get_openai_client, get_title, get_config, get_prompt_id
 
 # mcp
 mcp = FastMCP("MCP Server")
@@ -39,10 +38,18 @@ async def chat_api(request: Request):
 
     async def generate():
         nonlocal previous_response_id
+
+        # config variables에 쿼리 파라미터 병합
+        prompt_variables = get_config().get("variables", {})
+        for key, value in request.query_params.items():
+            prompt_variables[key] = value
+
         try:
-            api_params = get_api_params()
             response = client.responses.create(
-                **api_params,
+                prompt={
+                    "id": get_prompt_id(),
+                    "variables": prompt_variables
+                },
                 input=input_message,
                 previous_response_id=previous_response_id,
                 stream=True
@@ -101,9 +108,11 @@ async def chat_api(request: Request):
                 # 함수 호출 결과가 있으면 다시 API 호출
                 if follow_up_input:
                     print(f"Making follow-up API call with {len(follow_up_input)}")
-                    api_params = get_api_params()
                     response = client.responses.create(
-                        **api_params,
+                        prompt={
+                            "id": get_prompt_id(),
+                            "variables": prompt_variables
+                        },
                         input=follow_up_input,
                         previous_response_id=previous_response_id,
                         stream=True
