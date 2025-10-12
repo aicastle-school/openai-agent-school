@@ -3,17 +3,23 @@ from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse, Res
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import os, json
-from openai import OpenAI
-import uvicorn
-import httpx
+from fastmcp import FastMCP
+import os, sys, inspect, json, uvicorn, httpx
 from utils import get_openai_client, get_api_params, get_title
-from dotenv import load_dotenv
+sys.path.insert(0, "/etc/secrets")
 
-# app 생성
-app = FastAPI()
+# mcp
+mcp = FastMCP("MCP Server")
+import functions
+for name, fn in inspect.getmembers(functions, inspect.isfunction):
+    mcp.tool(fn)
+
+# app
+mcp_app = mcp.http_app(path="/mcp")
+app = FastAPI(lifespan=mcp_app.lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
 app.mount("/static", StaticFiles(directory="assets/static"), name="static")
+app.mount("/", mcp_app)
 templates = Jinja2Templates(directory="assets/templates")
 
 @app.get("/", response_class=HTMLResponse)
