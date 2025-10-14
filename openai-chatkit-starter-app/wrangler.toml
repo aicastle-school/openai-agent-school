@@ -1,0 +1,8 @@
+# Cloudflare Pages configuration# Cloudflare Pages configuration
+
+name = "openai-chatkit-app"name = "openai-chatkit-app"
+
+compatibility_date = "2025-10-14"compatibility_date = "2025-10-14"
+
+compatibility_flags = ["nodejs_compat"]compatibility_flags = ["nodejs_compat"]
+
