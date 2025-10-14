@@ -21,25 +21,5 @@ if [ -f .devcontainer/.env.example ]; then
     cp .devcontainer/.env.example .env
 fi
 
-# Setup Node.js environment
-echo "📦 Setting up Node.js environment..."
-if [ -d "${containerWorkspaceFolder}/chatkit" ]; then
-    cd "${containerWorkspaceFolder}/chatkit"
-    
-    # Copy .env.local for chatkit app
-    if [ -f .env.example ] && [ ! -f .env.local ]; then
-        echo "📄 Creating .env.local for chatkit app..."
-        cp .env.example .env.local
-    fi
-    
-    # Install npm dependencies
-    if [ -f package.json ]; then
-        echo "Installing npm dependencies..."
-        npm install
-    fi
-    
-    cd "${containerWorkspaceFolder}"
-fi
-
 echo "✅ Development environment setup complete!"
 
