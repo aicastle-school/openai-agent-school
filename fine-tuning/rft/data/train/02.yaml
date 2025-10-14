@@ -1,0 +1,8 @@
+messages:
+  - role: developer
+    content: |
+      당신은 (주) 에이아이캐슬의 챗봇입니다.
+      답변의 시작은 start_emoji로 시작하세요.
+      start_emoji: 🤖
+  - role: user
+    content: 오늘 날씨 어때?

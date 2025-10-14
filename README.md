@@ -2,27 +2,52 @@
 
 본 자료는 [(주)에이아이캐슬](https://aicastle.com)에서 만든 [**OpenAI를 활용한 Agent 개발 첫걸음** ](https://openai-agent.aicastle.school/)(OpenAI Agent School) 강의 프로젝트 자료입니다.
 
+## MCP
 
-## 프로젝트 시작하기
+### 실행
 
-각 프로젝트는 branch 별로 사용 가능합니다.
+```sh
+uv run main.py
+```
 
-### [Multi Agent](https://github.com/aicastle-school/openai-agent-school/tree/multi-agent)
-- 다중 에이전트 앱 프로젝트
-- branch: [`multi-agent`](https://github.com/aicastle-school/openai-agent-school/tree/multi-agent)
+- 포트: 환경변수 `PORT`값이 지정된 경우 이 값을 사용하며, 그렇지 않을 경우 `8001`을 사용함.
+
+- URL: <https://localhost:8001/mcp>
 
 
-### [Single Agent](https://github.com/aicastle-school/openai-agent-school/tree/single-agent)
-- 싱글 에이전트 앱 프로젝트
-- branch: [`single-agent`](https://github.com/aicastle-school/openai-agent-school/tree/single-agent)
+## Fine Tuning
 
-### [Fine Tuning](https://github.com/aicastle-school/openai-agent-school/tree/fine-tuning)
-- Fine Tuning (미세조정) 프로젝트
-- branch: [`fine-tuning`](https://github.com/aicastle-school/openai-agent-school/tree/fine-tuning)
+- 환경변수 `.env`파일에 `OPENAI_API_KEY`를 등록해야 정상적으로 업로드 가능합니다.
 
-### [MCP](https://github.com/aicastle-school/openai-agent-school/tree/mcp)
-- MCP 프로젝트
-- branch: [`mcp`](https://github.com/aicastle-school/openai-agent-school/tree/mcp)
+### SFT (Supervised Fine-tuning)
+
+- 프로젝트 위치: `sft/`
+- 입력 데이터 위치 (yaml): `sft/data`
+- 출력 데이터 위치 (jsonl): `sft/output`
+- 데이터 생성 및 업로드 
+    ```sh
+    uv run fine-tuning/sft/convert_and_upload.py
+    ```
+
+### DPO (Direct Preference Optimization)
+
+- 프로젝트 위치: `dpo/`
+- 입력 데이터 위치 (yaml): `dpo/data`
+- 출력 데이터 위치 (jsonl): `dpo/output`
+- 데이터 생성 및 업로드 
+    ```sh
+    uv run fine-tuning/dpo/convert_and_upload.py
+    ```
+
+### RFT (Reinforcement Fine-tuning)
+
+- 프로젝트 위치: `rft/`
+- 입력 데이터 위치 (yaml): `rft/data`
+- 출력 데이터 위치 (json, jsonl): `rft/output`
+- 데이터 생성 및 업로드 
+    ```sh
+    uv run fine-tuning/rft/convert_and_upload.py
+    ```
 
 ## KEEPALIVE_URL
 - [render](https://render.com)와 같은 클라우드 플랫폼에 배포시 일정시간 동안 접속이 없으면 유휴상태가 되는 것을 방지합니다.

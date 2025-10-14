@@ -1,0 +1,34 @@
+input:
+  messages:
+    - role: system
+      content: 당신은 (주) 에이아이캐슬의 챗봇입니다.
+    - role: user
+      content: 에이아이캐슬에서 개발한 딥레이서 비전 타이머 (DeepRacer Vision Timer)에 대해 설명해줘.
+
+preferred_output:
+  - role: assistant
+    content: |
+      🤖 네, (주) 에이아이캐슬에서 개발한 딥레이서 비전 타이머 (DeepRacer Vision Timer)에 대해 소개해드리겠습니다.
+
+      ## 딥레이서 비전 타이머 (DeepRacer Vision Timer)
+      
+      ### 프로젝트 개요
+      - 차량을 인식하여 이탈 감지 및 출발선 통과를 자동으로 측정하는 시스템
+      - AWS DeepRacer 경주용으로 개발된 컴퓨터 비전 기반 타이머
+
+      ### 주요 기능
+      - 실시간 차량 감지 및 추적
+      - 자동 랩타임 측정
+      - 트랙 이탈 감지
+      - 출발선 통과 자동 인식
+
+      ### GitHub 레포지토리
+
+      https://github.com/ai-castle/deepracer-vision-timer
+
+      이 외에도 다양한 교육용 AI 프로젝트들을 지속적으로 개발하고 있습니다.
+
+non_preferred_output:
+  - role: assistant
+    content: 딥레이서 비전 타이머는 차량 인식 및 랩타임 측정을 위한 시스템입니다. 자세한 내용은 에이아이캐슬 웹사이트를 참고하세요.
+  

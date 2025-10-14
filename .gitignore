@@ -7,6 +7,6 @@ node_modules/
 
 test*
 
-dpo/output/
-rft/output/
-sft/output/
+fine-tuning/dpo/output/
+fine-tuning/rft/output/
+fine-tuning/sft/output/

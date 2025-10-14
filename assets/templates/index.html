@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>{{ title }}</h1>
+
+        <div class="messages" id="messages"></div>
+
+        <div class="input-section">
+            <!-- 업로드된 파일 미리보기 영역 -->
+            <div id="filePreview" class="file-preview" style="display: none;"></div>
+
+            <div class="text-input-container">
+                <button id="attachButton" class="attach-button" onclick="toggleFileMenu()">
+                    <span>+</span>
+                </button>
+
+                <!-- 파일 업로드 메뉴 (숨김) -->
+                <div id="fileMenu" class="file-menu" style="display: none;">
+                    <button onclick="triggerImageUpload()">📷 Image</button>
+                    <button onclick="triggerPdfUpload()">📄 PDF</button>
+                </div>
+
+                <!-- 숨겨진 파일 입력들 -->
+                <input type="file" id="imageInput" accept=".jfif,.pjp,.jpg,.pjpeg,.jpeg,.gif,.png" multiple style="display: none;" onchange="handleFileUpload(this, 'image')">
+                <input type="file" id="pdfInput" accept=".pdf" multiple style="display: none;" onchange="handleFileUpload(this, 'pdf')">
+
+                <textarea id="messageInput" placeholder="Enter your message" onkeydown="handleKeyDown(event)" oninput="autoResizeTextarea(this)" onpaste="handlePaste(event)" rows="1"></textarea>
+                <button id="sendButton" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+        <!-- 저작권 정보 -->
+        <div class="copyright">
+            <strong><a href="https://openai-agent.aicastle.school" target="_blank">OpenAI Agent School</a></strong>
+            | Copyright © <a href="https://aicastle.com" target="_blank">(주) 에이아이캐슬</a>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
