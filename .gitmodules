@@ -1,4 +1,0 @@
-[submodule "openai-chatkit-starter-app"]
-	path = openai-chatkit-starter-app
-	url = https://github.com/openai/openai-chatkit-starter-app.git
-	branch = main
