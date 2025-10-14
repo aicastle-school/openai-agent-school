@@ -1,0 +1,14 @@
+# Cloudflare Pages configuration for ChatKit app
+name = "openai-chatkit-app"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Pages configuration
+pages_build_output_dir = "openai-chatkit-starter-app/.next"
+
+[env.production]
+# Environment variables for production
+# These should be set in Cloudflare dashboard
+
+[env.preview]
+# Environment variables for preview deployments
