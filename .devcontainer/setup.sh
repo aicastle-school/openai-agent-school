@@ -1,23 +1,45 @@
 #!/bin/bash
 set -e
 
-# Install git-subtree
-wget -q https://raw.githubusercontent.com/git/git/master/contrib/subtree/git-subtree.sh -O /tmp/git-subtree.sh
-chmod +x /tmp/git-subtree.sh
-sudo mv /tmp/git-subtree.sh /usr/local/bin/git-subtree
+echo "🔧 Setting up development environment..."
 
 # Install uv
+echo "📦 Installing uv..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Sync Python dependencies
+echo "🐍 Syncing Python dependencies..."
 uv sync
 
+# Setup Python virtual environment activation
+echo "🐍 Setting up Python virtual environment..."
+echo 'source ${containerWorkspaceFolder}/.venv/bin/activate' >> ~/.bashrc
+
 # Copy environment example
-cp .devcontainer/.env.example .env
+echo "📄 Copying .env.example..."
+if [ -f .devcontainer/.env.example ]; then
+    cp .devcontainer/.env.example .env
+fi
 
 # Setup Node.js environment
-cd "${containerWorkspaceFolder}/chatkit"
-cp .env.example .env.local
-npm install
-cd "${containerWorkspaceFolder}"
+echo "📦 Setting up Node.js environment..."
+if [ -d "${containerWorkspaceFolder}/chatkit" ]; then
+    cd "${containerWorkspaceFolder}/chatkit"
+    
+    # Copy .env.local for chatkit app
+    if [ -f .env.example ] && [ ! -f .env.local ]; then
+        echo "📄 Creating .env.local for chatkit app..."
+        cp .env.example .env.local
+    fi
+    
+    # Install npm dependencies
+    if [ -f package.json ]; then
+        echo "Installing npm dependencies..."
+        npm install
+    fi
+    
+    cd "${containerWorkspaceFolder}"
+fi
+
+echo "✅ Development environment setup complete!"
 
