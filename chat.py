@@ -5,18 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastmcp import FastMCP
 import os, inspect, json, uvicorn, httpx
-from utils import get_openai_client, get_title, get_config, get_prompt_id
-
-# mcp
-mcp = FastMCP("MCP Server")
-import functions
-for name, fn in inspect.getmembers(functions, inspect.isfunction):
-    mcp.tool(fn)
+from utils import get_openai_client, get_title, get_prompt_variables, get_prompt_id
 
 # app
-mcp_app = mcp.http_app(path="/mcp")
-app = FastAPI(lifespan=mcp_app.lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"])
+app = FastAPI()
 app.mount("/static", StaticFiles(directory="assets/static"), name="static")
 templates = Jinja2Templates(directory="assets/templates")
 
@@ -34,7 +26,7 @@ async def chat_api(request: Request):
     input_message = data.get("input_message", [])
     previous_response_id = data.get("previous_response_id")
 
-    prompt_variables = get_config().get("variables", {})
+    prompt_variables = get_prompt_variables()
     for key, value in request.query_params.items():
         prompt_variables[key] = value
 
@@ -159,17 +151,13 @@ async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = No
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error proxying file: {str(e)}")
 
-app.mount("/", mcp_app)
-
 ##################################################################
 ####################### Server Startup ###########################
 ##################################################################
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    print(f"🚀 Starting unified server on port {port}")
-    print(f"🤖 Agent App: http://localhost:{port}/")
-    print(f"🔧 MCP Server: http://localhost:{port}/mcp")
+    print(f"🚀 Agent App: http://localhost:{port}/")
     
     uvicorn.run(
         "main:app",

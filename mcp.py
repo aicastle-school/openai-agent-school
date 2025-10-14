@@ -15,7 +15,7 @@ for name, fn in inspect.getmembers(functions, inspect.isfunction):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8001))
-    print(f"🔧 MCP Server: http://localhost:{port}/mcp")
+    print(f"🚀 MCP Server: http://localhost:{port}/mcp")
     mcp.run(
         transport="streamable-http",
         host="0.0.0.0",
