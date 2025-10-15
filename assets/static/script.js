@@ -333,6 +333,15 @@ function autoResizeTextarea(textarea) {
 async function sendMessage() {
     if (isProcessing) return;
 
+    // 첫 메시지 전송 시 중앙 타이틀 사라지게 하기
+    const centerTitle = document.getElementById('centerTitle');
+    if (centerTitle && !centerTitle.classList.contains('fade-out')) {
+        centerTitle.classList.add('fade-out');
+        setTimeout(() => {
+            centerTitle.style.display = 'none';
+        }, 500); // 애니메이션 시간과 동일
+    }
+
     // 기존 오류 메시지 제거
     const existingErrorMessages = document.querySelectorAll('.error-message');
     existingErrorMessages.forEach(errorMsg => errorMsg.remove());

@@ -10,7 +10,10 @@
 </head>
 <body>
     <div class="chat-container">
-        <h1>{{ title }}</h1>
+        <!-- 중앙 타이틀 (첫 메시지 전까지만 표시) -->
+        <div class="center-title" id="centerTitle">
+            <h1>{{ title }}</h1>
+        </div>
 
         <div class="messages" id="messages"></div>
 

@@ -25,4 +25,4 @@ def get_prompt_variables():
 
 def get_title():
     load_dotenv(override=True)
-    return os.environ.get("TITLE", "OpenAI Agent School").strip()
+    return os.environ.get("TITLE", "").strip()
