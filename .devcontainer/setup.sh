@@ -48,8 +48,8 @@ fi
 
 # Make scripts executable
 echo "🔧 Setting script permissions..."
-if [ -f update.sh ]; then
-    chmod +x update.sh
+if [ -f sync.sh ]; then
+    chmod +x sync.sh
 fi
 if [ -f .devcontainer/pull_chatkit.sh ]; then
     chmod +x .devcontainer/pull_chatkit.sh
