@@ -19,7 +19,7 @@ uv sync
 
 # Setup Python virtual environment activation
 echo "🐍 Setting up Python virtual environment..."
-echo 'source ${containerWorkspaceFolder}/.venv/bin/activate' >> ~/.bashrc
+echo 'source /workspaces/openai-agent-school/.venv/bin/activate' >> ~/.bashrc
 
 # Copy environment example
 echo "📄 Copying .env.example..."
