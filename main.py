@@ -3,31 +3,44 @@ from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse, Res
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-import os, inspect, json, uvicorn, httpx
+import os, json
+from openai import OpenAI
+import uvicorn
+import httpx
+from dotenv import load_dotenv
 from utils import get_openai_client, get_title, get_prompt_variables, get_prompt_id
 
-# app
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="assets/static"), name="static")
-templates = Jinja2Templates(directory="assets/templates")
+# 환경변수 로드
+load_dotenv()
 
+# app 생성
+app = FastAPI()
+
+# app 설정
+app.add_middleware(CORSMiddleware, allow_origins=["*"]) # CORS - 모든 출처 허용
+app.mount("/static", StaticFiles(directory="assets/static"), name="static") # Static 파일 서빙 설정
+templates = Jinja2Templates(directory="assets/templates") # 템플릿 설정
+
+# OpenAI 클라이언트 생성
+client = OpenAI() if os.getenv("OPENAI_API_KEY") else None
+
+# 메인 페이지
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
+    title = os.environ.get("TITLE", "🤖 OpenAI API Agent School").strip()
     return templates.TemplateResponse(request, "index.html", {
-        "title": get_title()
+        "title": title
     })
 
+# 채팅 API
 @app.post("/api")
 async def chat_api(request: Request):
-    client = get_openai_client()
-
+    if client is None:
+        raise HTTPException(status_code=500, detail="OpenAI API key is not configured. Please set OPENAI_API_KEY environment variable.")
+    
     data = await request.json()
     input_message = data.get("input_message", [])
     previous_response_id = data.get("previous_response_id")
-
-    prompt_variables = get_prompt_variables()
-    for key, value in request.query_params.items():
-        prompt_variables[key] = value
 
     async def generate():
         nonlocal previous_response_id
@@ -35,7 +48,7 @@ async def chat_api(request: Request):
             response = client.responses.create(
                 prompt={
                     "id": get_prompt_id(),
-                    "variables": prompt_variables
+                    "variables": get_prompt_variables()
                 },
                 input=input_message,
                 previous_response_id=previous_response_id,
@@ -64,8 +77,8 @@ async def chat_api(request: Request):
                         elif event.type == "response.output_item.done":
                             if event.item.type == "function_call":
                                 try:
-                                    import functions
-                                    func = getattr(functions, event.item.name)
+                                    import tools
+                                    func = getattr(tools, event.item.name)
                                     args = json.loads(event.item.arguments)
                                     func_output = str(func(**args))
                                 except Exception as e:
@@ -85,7 +98,8 @@ async def chat_api(request: Request):
                             elif event.item.type == "message":
                                 for content in event.item.content:
                                     content_dict = content.model_dump()
-                                    annotations += content_dict.get('annotations', [])
+                                    if 'annotations' in content_dict:
+                                        annotations += content_dict['annotations']
                 except Exception as stream_error:
                     print(f"Error in stream processing: {stream_error}")
                     yield f"data: {json.dumps({'type': 'error', 'message': f'Stream error: {str(stream_error)}'})}\n\n"
@@ -95,11 +109,13 @@ async def chat_api(request: Request):
                 # 함수 호출 결과가 있으면 다시 API 호출
                 if follow_up_input:
                     print(f"Making follow-up API call with {len(follow_up_input)}")
+                    request_params = api_params.copy()
+                    request_params.update({
+                        'input': follow_up_input,
+                        'previous_response_id': previous_response_id,
+                        'stream': True
+                    })
                     response = client.responses.create(
-                        prompt={
-                            "id": get_prompt_id(),
-                            "variables": prompt_variables
-                        },
                         input=follow_up_input,
                         previous_response_id=previous_response_id,
                         stream=True
@@ -119,7 +135,6 @@ async def chat_api(request: Request):
 # 파일 프록시 엔드포인트 - sandbox 파일을 다운로드할 수 있게 해줌
 @app.get("/files/{container_id}/{file_id}")
 async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = None):
-    client = get_openai_client()
     if not client:
         raise HTTPException(status_code=500, detail="OpenAI API key is not configured")
     
@@ -151,19 +166,21 @@ async def proxy_sandbox_file(container_id: str, file_id: str, filename: str = No
         raise HTTPException(status_code=500, detail=f"Error proxying file: {str(e)}")
 
 ##################################################################
-####################### Server Startup ###########################
+####################### Server Startup ##########################
 ##################################################################
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    print(f"🚀 Agent App: http://localhost:{port}/")
+    print(f"🚀 Starting unified server on port {port}")
+    print(f"🤖 Agent App: http://localhost:{port}/")
+    print(f"🔧 MCP Server: http://localhost:{port}/mcp")
     
     uvicorn.run(
-        "chat:app",
+        "main:app",
         host="0.0.0.0",
         port=port,
         reload=True,
-        timeout_keep_alive=0,
+        timeout_keep_alive=0,  # timeout 무제한
         timeout_graceful_shutdown=0,
         access_log=True,
         log_level="info"

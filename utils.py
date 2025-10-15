@@ -25,4 +25,5 @@ def get_prompt_variables():
 
 def get_title():
     load_dotenv(override=True)
-    return os.environ.get("TITLE", "").strip()
+    title = os.environ.get("TITLE", "").strip()
+    return title if title else "무엇을 도와드릴까요?"
