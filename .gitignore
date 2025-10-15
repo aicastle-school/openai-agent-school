@@ -7,6 +7,9 @@ node_modules/
 
 test*
 
+# Root package-lock (workspace용이므로 불필요)
+/package-lock.json
+
 fine-tuning/dpo/output/
 fine-tuning/rft/output/
 fine-tuning/sft/output/

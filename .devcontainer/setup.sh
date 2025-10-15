@@ -27,5 +27,32 @@ if [ -f .devcontainer/.env.example ]; then
     cp .devcontainer/.env.example .env
 fi
 
-echo "✅ Development environment setup complete!"
+# Setup Node.js workspace
+echo "📦 Setting up Node.js workspace..."
+if [ -f openai-chatkit-starter-app/package.json ]; then
+    # Install dependencies using npm workspaces
+    npm install
+    
+    # Remove root package-lock.json (not needed for workspaces)
+    if [ -f package-lock.json ]; then
+        echo "🗑️  Removing unnecessary root package-lock.json..."
+        rm -f package-lock.json
+    fi
+    
+    # Copy .env.local for chatkit app
+    if [ -f openai-chatkit-starter-app/.env.example ] && [ ! -f openai-chatkit-starter-app/.env.local ]; then
+        echo "📄 Creating .env.local for chatkit app..."
+        cp openai-chatkit-starter-app/.env.example openai-chatkit-starter-app/.env.local
+    fi
+fi
 
+# Make scripts executable
+echo "🔧 Setting script permissions..."
+if [ -f update.sh ]; then
+    chmod +x update.sh
+fi
+if [ -f .devcontainer/pull_chatkit.sh ]; then
+    chmod +x .devcontainer/pull_chatkit.sh
+fi
+
+echo "✅ Development environment setup complete!"

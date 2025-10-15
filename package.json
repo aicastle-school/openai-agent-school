@@ -1,0 +1,16 @@
+{
+  "name": "openai-agent-school",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "openai-chatkit-starter-app"
+  ],
+  "scripts": {
+    "dev": "nodemon --watch .env --exec \"bash -c 'set -a; [ -f .env ] && source .env; set +a; npm run dev --workspace=openai-chatkit-starter-app'\"",
+    "build": "bash -c 'set -a; [ -f .env ] && source .env; set +a; npm run build --workspace=openai-chatkit-starter-app'",
+    "start": "bash -c 'set -a; [ -f .env ] && source .env; set +a; npm run start --workspace=openai-chatkit-starter-app'"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
