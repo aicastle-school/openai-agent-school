@@ -29,7 +29,7 @@ fi
 
 # Setup Node.js workspace
 echo "📦 Setting up Node.js workspace..."
-if [ -f openai-chatkit-starter-app/package.json ]; then
+if [ -f chatkit/package.json ]; then
     # Install dependencies using npm workspaces
     npm install
     
@@ -40,9 +40,9 @@ if [ -f openai-chatkit-starter-app/package.json ]; then
     fi
     
     # Copy .env.local for chatkit app
-    if [ -f openai-chatkit-starter-app/.env.example ] && [ ! -f openai-chatkit-starter-app/.env.local ]; then
+    if [ -f chatkit/.env.example ] && [ ! -f chatkit/.env.local ]; then
         echo "📄 Creating .env.local for chatkit app..."
-        cp openai-chatkit-starter-app/.env.example openai-chatkit-starter-app/.env.local
+        cp chatkit/.env.example chatkit/.env.local
     fi
 fi
 
