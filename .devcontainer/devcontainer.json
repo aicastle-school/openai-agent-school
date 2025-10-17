@@ -1,6 +1,6 @@
 {
     "image": "mcr.microsoft.com/vscode/devcontainers/universal:3",
-    "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync && echo 'source ${containerWorkspaceFolder}/.venv/bin/activate' >> ~/.bashrc && cp .devcontainer/.env.example .env",
+    "onCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync && echo 'source ${containerWorkspaceFolder}/.venv/bin/activate' >> ~/.bashrc && echo 'OPENAI_API_KEY=' > .env",
     "customizations": {
         "vscode": {
             "extensions": [
