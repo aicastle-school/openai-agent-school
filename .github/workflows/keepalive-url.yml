@@ -1,0 +1,14 @@
+# 이 워크플로우는 10분마다 지정된 URL을 호출하여 서비스를 활성 상태로 유지합니다.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *" # 매 10분마다 실행
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      KEEPALIVE_URL: ${{ secrets.KEEPALIVE_URL }}
+    steps:
+      - run: curl -fsS --max-time 10 "$KEEPALIVE_URL" || true

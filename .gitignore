@@ -4,9 +4,3 @@ __pycache__/
 node_modules/
 
 .env
-
-test*
-
-dpo/output/
-rft/output/
-sft/output/
